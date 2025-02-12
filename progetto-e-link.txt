@@ -1,0 +1,15 @@
+progetto Daniele: 
+migliorare il modo in cui si analizzano i beni culturali in generale.
+Al momento si usano laser scanner o altri tipi di foto per fare scansioni o rilievi e i risultati sono MOLTO dettagliati.
+Quello che viene richiesto dallo stato però sono dei disegni. Al momento si "ricalcano".
+L'obiettivo: fornire delle immagini per estrarre dei dati. Questi dati poi si dovrebbe estrarre se ci sono crepe o pezzi mancanti o macchie.
+Il modello 3d completo con il rendering pesa molto. Per allegerirlo si divide il modello 3D dalle varie texture (che sono delle mappe, chiamate Phisichal Based R..., che rappresentano varie caratteristiche: colore, ruvidezza, metalness, mappa normale (per la luce), displacement (rilievo), ...) 
+
+
+https://github.com/akomp22/crack-segmentation-tool (solo crepe)
+https://drive.google.com/drive/folders/1yVVuUpVtClIyWTlsaMSnOs4xxkcdfEym (cracks)
+
+for segmentation:
+https://github.com/qubvel-org/segmentation_models.pytorch 
+
+
