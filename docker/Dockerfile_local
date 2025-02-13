@@ -1,0 +1,14 @@
+FROM python:3.11.10-slim
+
+WORKDIR /workspace
+
+# Copy the requirements.txt into the container
+COPY requirements.txt /workspace/requirements.txt
+
+# Install the Python dependencies
+RUN pip install --no-cache-dir -r /workspace/requirements.txt
+
+# Copy everything from the current directory (the whole RepresentationLearning folder) into the container
+COPY . /workspace/
+
+ENV WANDB_API_KEY=2aa2cc64e8422604fbbc4711274a7680f8ce951b
