@@ -48,14 +48,15 @@ def create_pbr_map(sample_path, resizer):
 
 def create_mask(sample_path, resizer):
 	# Load individual masks (adjust based on your texture files)
-	mask_1 = torchio.decode_image(os.path.join(sample_path, "Scagliatura.jpg"), mode=ImageReadMode.GRAY).data
-	
+	mask_1 = torchio.decode_image(os.path.join(sample_path, "Maschere", "Cavillature.jpg"), mode=ImageReadMode.GRAY).data if os.path.isfile(os.path.join(sample_path, "Maschere", "Cavillature.jpg")) else torch.zeros((1,)+RESOLUTION) 
+	mask_2 = torchio.decode_image(os.path.join(sample_path, "Maschere", "Scagliatura.jpg"), mode=ImageReadMode.GRAY).data if os.path.isfile(os.path.join(sample_path, "Maschere", "Scagliatura.jpg")) else torch.zeros((1,)+RESOLUTION) 
 	# Resize all maps to common resolution
 	mask_1 = resizer(mask_1)
+	mask_2 = resizer(mask_2)
 	
 	# Stack maps to create 8-channel tensor
 	mask = torch.cat(
-		[mask_1],
+		[mask_1, mask_2],
 		dim=0)
 	
 	return mask
