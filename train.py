@@ -29,9 +29,10 @@ class PBRDataset(Dataset):
         pbr_map = torch.load(os.path.join(self.input_data_path, "data", f"data_{str(idx)}")).float()  # Shape: (H, W, C)
         mask = torch.load(os.path.join(self.input_data_path, "masks", f"mask_{str(idx)}")).float() # Grayscale
 
+        mask = mask / 255.0  # Normalize mask to [0,1] (assuming stored as 0-255)
+
         if self.transform:
-            transformed_pbr_map = self.transform(pbr_map)
-            transformed_pbr_map = transformed_pbr_map
+            pbr_map = self.transform(pbr_map)
 
         return pbr_map, mask
   
@@ -78,7 +79,12 @@ train_dataset = PBRDataset(
 train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
 
 # Initialize model, loss, and optimizer
-model = MultiMaskUNet(in_channels=IN_CHANNELS, out_channels=NUM_CLASSES).to(DEVICE)
+if os.path.exists("./saved_model.pth"):
+    model = MultiMaskUNet(in_channels=IN_CHANNELS, out_channels=NUM_CLASSES).to(DEVICE)
+    model.load_state_dict(torch.load('./saved_model.pth', weights_only=True))
+else:
+    model = MultiMaskUNet(in_channels=IN_CHANNELS, out_channels=NUM_CLASSES).to(DEVICE)
+
 criterion = smp.losses.DiceLoss(mode='multiclass')
 optimizer = optim.Adam(model.parameters(), lr=LR)
 
@@ -106,5 +112,6 @@ for epoch in tqdm(range(EPOCHS)):
         optimizer.step()
         
         running_loss += loss.item()
+        torch.save(model.state_dict(), "./saved_model.pth")
     
     print(f"Epoch {epoch+1}/{EPOCHS} Loss: {running_loss/len(train_loader)}")
