@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import torchvision
 import torchvision.io as torchio
 from torchvision.io import ImageReadMode 
+import torchvision.transforms as transforms
 from torchvision.transforms import Compose
 from tqdm import tqdm
 
@@ -25,15 +26,14 @@ class PBRDataset(Dataset):
 
     def __getitem__(self, idx):
         # Load multi-channel PBR maps (albedo, normal, roughness, metallic, etc.)
-        pbr_map = torch.load(os.path.join(self.input_data_path, "data", f"data_{str(idx)}"))  # Shape: (H, W, C)
-        mask = torch.load(os.path.join(self.input_data_path, "masks", f"mask_{str(idx)}")) # Grayscale
+        pbr_map = torch.load(os.path.join(self.input_data_path, "data", f"data_{str(idx)}")).float()  # Shape: (H, W, C)
+        mask = torch.load(os.path.join(self.input_data_path, "masks", f"mask_{str(idx)}")).float() # Grayscale
 
         if self.transform:
-            transformed = self.transform(image=pbr_map, mask=mask)
-            pbr_map = transformed['image']
-            mask = transformed['mask']
+            transformed_pbr_map = self.transform(pbr_map)
+            transformed_pbr_map = transformed_pbr_map
 
-        return pbr_map.float(), mask.float()
+        return pbr_map, mask
   
 
 # Step 4: Modified Model for Multi-Mask Output
@@ -64,17 +64,16 @@ BATCH_SIZE = 4
 LR = 0.0001
 EPOCHS = 50
 
-# train_transform = Compose([
-#     A.RandomRotate90(),
-#     A.Flip(),
-#     A.Normalize(mean=[0.5]*IN_CHANNELS, std=[0.5]*IN_CHANNELS),
-#     ToTensorV2(),
-# ])
+train_transform = Compose([
+    #transforms.RandomRotate90(),
+    #transforms.Flip(),
+    transforms.Normalize(mean=[0.5]*IN_CHANNELS, std=[0.5]*IN_CHANNELS),
+])
 
 # Initialize dataset and dataloader (replace with your paths)
 train_dataset = PBRDataset(
     input_data_path=OUTPUT_FOLDER,
-    transform=None
+    transform=train_transform
 )
 train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
 
