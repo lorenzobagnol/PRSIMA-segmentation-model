@@ -57,7 +57,7 @@ class MultiMaskUNet(nn.Module):
         return self.final_activation(x)
 
 
-DEVICE = "cpu" #"cuda" if torch.cuda.is_available() else "cpu"
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 IN_CHANNELS = 7  # Adjust based on PBR maps
 NUM_CLASSES = 2  # Number of damage types
 BATCH_SIZE = 4
