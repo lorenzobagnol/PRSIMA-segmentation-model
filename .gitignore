@@ -1,3 +1,4 @@
 .venv/
 images-and-masks/raw-data/*
 images-and-masks/torch-data/*
+saved_model.pth

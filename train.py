@@ -6,9 +6,7 @@ import segmentation_models_pytorch as smp
 import numpy as np
 import os
 import matplotlib.pyplot as plt
-import torchvision
-import torchvision.io as torchio
-from torchvision.io import ImageReadMode 
+from torch.optim.lr_scheduler import ExponentialLR
 import torchvision.transforms as transforms
 from torchvision.transforms import Compose
 from tqdm import tqdm
@@ -26,9 +24,10 @@ class PBRDataset(Dataset):
 
     def __getitem__(self, idx):
         # Load multi-channel PBR maps (albedo, normal, roughness, metallic, etc.)
-        pbr_map = torch.load(os.path.join(self.input_data_path, "data", f"data_{str(idx)}")).float()  # Shape: (H, W, C)
-        mask = torch.load(os.path.join(self.input_data_path, "masks", f"mask_{str(idx)}")).float() # Grayscale
+        pbr_map = torch.load(os.path.join(self.input_data_path, "data", f"data_{str(idx)}")).float()  # Shape: (C, H, W)
+        mask = torch.load(os.path.join(self.input_data_path, "masks", f"mask_{str(idx)}")).float() # (2, H, W)
 
+        pbr_map = pbr_map / 255.0  # Normalize to [0,1]
         mask = mask / 255.0  # Normalize mask to [0,1] (assuming stored as 0-255)
 
         if self.transform:
@@ -88,11 +87,11 @@ else:
 criterion = smp.losses.DiceLoss(mode='multiclass')
 optimizer = optim.Adam(model.parameters(), lr=LR)
 
-
+scheduler = ExponentialLR(optimizer, gamma=0.9)
 
 def loss_fn(preds, targets):
     bce_loss = nn.BCELoss()(preds, targets)
-    dice_loss = smp.losses.DiceLoss(mode='binary')(preds, targets)
+    dice_loss = smp.losses.DiceLoss(mode='multilabel')(preds, targets)
     return bce_loss + dice_loss
 
 optimizer = optim.Adam(model.parameters(), lr=LR)
@@ -113,5 +112,7 @@ for epoch in tqdm(range(EPOCHS)):
         
         running_loss += loss.item()
         torch.save(model.state_dict(), "./saved_model.pth")
+    
+    scheduler.step()
     
     print(f"Epoch {epoch+1}/{EPOCHS} Loss: {running_loss/len(train_loader)}")
