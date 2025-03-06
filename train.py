@@ -64,9 +64,11 @@ BATCH_SIZE = 4
 LR = 0.0001
 EPOCHS = 50
 
-train_transform = Compose([
-    #transforms.RandomRotate90(),
-    #transforms.Flip(),
+train_transform =  Compose([
+    transforms.RandomHorizontalFlip(p=0.5),
+    transforms.RandomVerticalFlip(p=0.5),
+    transforms.ColorJitter(brightness=0.2, contrast=0.2),
+    transforms.RandomAffine(degrees=15, translate=(0.1, 0.1)),
     transforms.Normalize(mean=[0.5]*IN_CHANNELS, std=[0.5]*IN_CHANNELS),
 ])
 
@@ -89,10 +91,21 @@ optimizer = optim.Adam(model.parameters(), lr=LR)
 
 scheduler = ExponentialLR(optimizer, gamma=0.9)
 
+# def loss_fn(preds, targets):
+#     bce_loss = nn.BCELoss()(preds, targets)
+#     dice_loss = smp.losses.DiceLoss(mode='multilabel')(preds, targets)
+#     return bce_loss + dice_loss
+
 def loss_fn(preds, targets):
-    bce_loss = nn.BCELoss()(preds, targets)
-    dice_loss = smp.losses.DiceLoss(mode='multilabel')(preds, targets)
-    return bce_loss + dice_loss
+    # Calculate class weights based on inverse frequency
+    positive_weight = (targets == 0).sum() / (targets.numel() + 1e-6)
+    class_weights = torch.tensor([positive_weight, 1 - positive_weight]).to(DEVICE)
+    # Weighted BCE
+    bce_loss = nn.BCEWithLogitsLoss(weight=class_weights[1])(preds, targets)
+    # Dice Loss with smoothing
+    dice_loss = smp.losses.DiceLoss(mode='multilabel', smooth=1.0)(preds, targets)
+    
+    return 0.5*bce_loss + 0.5*dice_loss
 
 optimizer = optim.Adam(model.parameters(), lr=LR)
 
