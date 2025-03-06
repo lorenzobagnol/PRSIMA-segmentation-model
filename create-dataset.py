@@ -39,7 +39,7 @@ def create_pbr_map(sample_path, resizer):
 	normal = resizer(normal)
 	color = resizer(color)
 	
-	# Stack maps to create 8-channel tensor
+	# Stack maps to create 7-channel tensor
 	pbr_map = torch.cat(
 		[ao, normal, color],
 		dim=0)
