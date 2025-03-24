@@ -67,7 +67,6 @@ EPOCHS = 50
 train_transform =  Compose([
     transforms.RandomHorizontalFlip(p=0.5),
     transforms.RandomVerticalFlip(p=0.5),
-    transforms.ColorJitter(brightness=0.2, contrast=0.2),
     transforms.RandomAffine(degrees=15, translate=(0.1, 0.1)),
     transforms.Normalize(mean=[0.5]*IN_CHANNELS, std=[0.5]*IN_CHANNELS),
 ])
@@ -91,27 +90,37 @@ optimizer = optim.Adam(model.parameters(), lr=LR)
 
 scheduler = ExponentialLR(optimizer, gamma=0.9)
 
-# def loss_fn(preds, targets):
-#     bce_loss = nn.BCELoss()(preds, targets)
-#     dice_loss = smp.losses.DiceLoss(mode='multilabel')(preds, targets)
-#     return bce_loss + dice_loss
+
 
 def loss_fn(preds, targets):
-    # Calculate class weights based on inverse frequency
-    positive_weight = (targets == 0).sum() / (targets.numel() + 1e-6)
-    class_weights = torch.tensor([positive_weight, 1 - positive_weight]).to(DEVICE)
-    # Weighted BCE
-    bce_loss = nn.BCEWithLogitsLoss(weight=class_weights[1])(preds, targets)
-    # Dice Loss with smoothing
-    dice_loss = smp.losses.DiceLoss(mode='multilabel', smooth=1.0)(preds, targets)
+    # Convert targets to float (if not already)
+    targets = targets.float()
     
-    return 0.5*bce_loss + 0.5*dice_loss
+    # Calculate class weights (per batch)
+    positive_pixels = targets.sum(dim=[0, 2, 3], keepdim=True)  # (1, C, 1, 1)
+    total_pixels = targets.shape[0] * targets.shape[2] * targets.shape[3]
+    positive_weights = (total_pixels - positive_pixels) / (positive_pixels + 1e-6)
+    
+    # # Weighted BCE (handles existing Sigmoid output)
+    # bce_loss = nn.BCELoss(reduction='none')(preds, targets)
+    # weighted_bce = (bce_loss * positive_weights).mean()
+    
+    # Adjusted Dice Loss for sparse targets
+    dice_loss = smp.losses.DiceLoss(
+        mode='multilabel',
+        smooth=100.0,  # Increased smoothness for sparse masks
+        from_logits=False, # Crucial for Sigmoid outputs!
+        ignore_index=0
+    )(preds, targets)
+    
+    return dice_loss
 
 optimizer = optim.Adam(model.parameters(), lr=LR)
 
 # Step 6: Modified Training Loop
 for epoch in tqdm(range(EPOCHS)):
     model.train()
+    scheduler.step()
     running_loss = 0.0
     for images, masks in train_loader:
         images = images.to(DEVICE)
@@ -126,6 +135,5 @@ for epoch in tqdm(range(EPOCHS)):
         running_loss += loss.item()
         torch.save(model.state_dict(), "./saved_model.pth")
     
-    scheduler.step()
     
     print(f"Epoch {epoch+1}/{EPOCHS} Loss: {running_loss/len(train_loader)}")
