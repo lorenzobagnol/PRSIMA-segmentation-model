@@ -11,7 +11,7 @@ import torchvision.transforms as transforms
 from torchvision.transforms import Compose
 from tqdm import tqdm
 
-OUTPUT_FOLDER = "./images-and-masks/torch-data"
+OUTPUT_FOLDER = "/content/drive/MyDrive/Colab Notebooks/torch-data"
 
 class PBRDataset(Dataset):
     def __init__(self, input_data_path, pbr_channels=7, transform=None):
@@ -74,7 +74,7 @@ train_transform =  Compose([
 # Initialize dataset and dataloader (replace with your paths)
 train_dataset = PBRDataset(
     input_data_path=OUTPUT_FOLDER,
-    transform=train_transform
+    transform=None
 )
 train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
 
@@ -88,16 +88,16 @@ else:
 
 def loss_fn(preds, targets):
     # Convert targets to float (if not already)
-    targets = targets.float().clamp(0.0, 1.0)
+    targets = targets.float().clamp(0.0, 1.0) 
     
     # Calculate class weights (per batch)
-    positive_pixels = targets.sum(dim=[0, 2, 3], keepdim=True)  # (1, C, 1, 1)
-    total_pixels = targets.shape[0] * targets.shape[2] * targets.shape[3]
-    positive_weights = (total_pixels - positive_pixels) / (positive_pixels + 1e-6)
+    # positive_pixels = targets.sum(dim=[0, 2, 3], keepdim=True)  # (1, C, 1, 1)
+    # total_pixels = targets.shape[0] * targets.shape[2] * targets.shape[3]
+    # positive_weights = (total_pixels - positive_pixels) / (positive_pixels + 1e-6)
     
-    # # Weighted BCE (handles existing Sigmoid output)
-    bce_loss = nn.BCELoss(reduction='sum')(preds, targets)
-    # weighted_bce = (bce_loss * positive_weights).mean()
+    # Weighted BCE (handles existing Sigmoid output)
+    bce_loss = nn.BCELoss(reduction='mean')(preds, targets)
+    #weighted_bce = (bce_loss * positive_weights).mean()
     
     # Adjusted Dice Loss for sparse targets
     dice_loss = smp.losses.DiceLoss(
