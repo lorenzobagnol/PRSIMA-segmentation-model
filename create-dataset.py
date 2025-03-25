@@ -1,15 +1,8 @@
 import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import Dataset, DataLoader
-import segmentation_models_pytorch as smp
-import numpy as np
 import os
-import matplotlib.pyplot as plt
 import torchvision
 import torchvision.io as torchio
 from torchvision.io import ImageReadMode 
-from torchvision.transforms import Compose
 
 
 # Configuration
@@ -44,22 +37,27 @@ def create_pbr_map(sample_path, resizer):
 		[ao, normal, color],
 		dim=0)
 	
-	return pbr_map
+	return pbr_map # [Channels, RESOLUTION]
 
 def create_mask(sample_path, resizer):
 	# Load individual masks (adjust based on your texture files)
 	mask_1 = torchio.decode_image(os.path.join(sample_path, "Maschere", "Cavillature.jpg"), mode=ImageReadMode.GRAY).data if os.path.isfile(os.path.join(sample_path, "Maschere", "Cavillature.jpg")) else torch.zeros((1,)+RESOLUTION) 
 	mask_2 = torchio.decode_image(os.path.join(sample_path, "Maschere", "Scagliatura.jpg"), mode=ImageReadMode.GRAY).data if os.path.isfile(os.path.join(sample_path, "Maschere", "Scagliatura.jpg")) else torch.zeros((1,)+RESOLUTION) 
+
+	# Create true masks with only 0 or 255 values
+	mask_1 = (mask_1 > 127).float() * 255
+	mask_2 = (mask_2 > 127).float() * 255
+
 	# Resize all maps to common resolution
 	mask_1 = resizer(mask_1)
 	mask_2 = resizer(mask_2)
 	
-	# Stack maps to create 8-channel tensor
+	# Stack maps to create 2-channel tensor
 	mask = torch.cat(
 		[mask_1, mask_2],
 		dim=0)
 	
-	return mask
+	return mask # [Channels, RESOLUTION]
 
 
 

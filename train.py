@@ -85,12 +85,6 @@ if os.path.exists("./saved_model.pth"):
 else:
     model = MultiMaskUNet(in_channels=IN_CHANNELS, out_channels=NUM_CLASSES).to(DEVICE)
 
-criterion = smp.losses.DiceLoss(mode='multiclass')
-optimizer = optim.Adam(model.parameters(), lr=LR)
-
-scheduler = ExponentialLR(optimizer, gamma=0.9)
-
-
 
 def loss_fn(preds, targets):
     # Convert targets to float (if not already)
@@ -110,12 +104,13 @@ def loss_fn(preds, targets):
         mode='multilabel',
         smooth=100.0,  # Increased smoothness for sparse masks
         from_logits=False, # Crucial for Sigmoid outputs!
-        ignore_index=0
+        #ignore_index=0
     )(preds, targets)
     
     return dice_loss
 
 optimizer = optim.Adam(model.parameters(), lr=LR)
+scheduler = ExponentialLR(optimizer, gamma=0.9)
 
 # Step 6: Modified Training Loop
 for epoch in tqdm(range(EPOCHS)):
@@ -133,7 +128,7 @@ for epoch in tqdm(range(EPOCHS)):
         optimizer.step()
         
         running_loss += loss.item()
-        torch.save(model.state_dict(), "./saved_model.pth")
     
-    
+    torch.save(model.state_dict(), "./saved_model.pth")
+
     print(f"Epoch {epoch+1}/{EPOCHS} Loss: {running_loss/len(train_loader)}")
