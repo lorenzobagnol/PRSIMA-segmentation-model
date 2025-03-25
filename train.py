@@ -88,7 +88,7 @@ else:
 
 def loss_fn(preds, targets):
     # Convert targets to float (if not already)
-    targets = targets.float()
+    targets = targets.float().clamp(0.0, 1.0)
     
     # Calculate class weights (per batch)
     positive_pixels = targets.sum(dim=[0, 2, 3], keepdim=True)  # (1, C, 1, 1)
@@ -96,7 +96,7 @@ def loss_fn(preds, targets):
     positive_weights = (total_pixels - positive_pixels) / (positive_pixels + 1e-6)
     
     # # Weighted BCE (handles existing Sigmoid output)
-    # bce_loss = nn.BCELoss(reduction='none')(preds, targets)
+    bce_loss = nn.BCELoss(reduction='sum')(preds, targets)
     # weighted_bce = (bce_loss * positive_weights).mean()
     
     # Adjusted Dice Loss for sparse targets
@@ -107,7 +107,7 @@ def loss_fn(preds, targets):
         #ignore_index=0
     )(preds, targets)
     
-    return dice_loss
+    return dice_loss, bce_loss
 
 optimizer = optim.Adam(model.parameters(), lr=LR)
 scheduler = ExponentialLR(optimizer, gamma=0.9)
@@ -115,20 +115,23 @@ scheduler = ExponentialLR(optimizer, gamma=0.9)
 # Step 6: Modified Training Loop
 for epoch in tqdm(range(EPOCHS)):
     model.train()
-    scheduler.step()
-    running_loss = 0.0
+    running_loss = {"loss": 0, "dice_loss": 0, "bce_loss": 0}
     for images, masks in train_loader:
         images = images.to(DEVICE)
         masks = masks.to(DEVICE)
         
         optimizer.zero_grad()
         outputs = model(images)
-        loss = loss_fn(outputs, masks)
+        dice_loss, bce_loss = loss_fn(outputs, masks)
+        loss = torch.sum(dice_loss + bce_loss)
         loss.backward()
         optimizer.step()
         
-        running_loss += loss.item()
+        running_loss["loss"]+= loss.item()
+        running_loss["dice_loss"]+= dice_loss.item()
+        running_loss["bce_loss"]+= bce_loss.item()
     
+    scheduler.step()
     torch.save(model.state_dict(), "./saved_model.pth")
 
-    print(f"Epoch {epoch+1}/{EPOCHS} Loss: {running_loss/len(train_loader)}")
+    print(f"Epoch {epoch+1}/{EPOCHS} - Loss: {running_loss['loss']:.4f}, Dice Loss: {running_loss['dice_loss']:.4f}, BCE Loss: {running_loss['bce_loss']:.4f}")
