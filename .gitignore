@@ -1,4 +1,11 @@
+# Ignore the virtual environment
 .venv/
+
+# Ignore model weights
+saved_model.pth
+
+# Ignore the images and masks data
 images-and-masks/raw-data/*
 images-and-masks/torch-data/*
-saved_model.pth
+images-and-masks/raw-data/*
+images-and-masks/torch-data/*
