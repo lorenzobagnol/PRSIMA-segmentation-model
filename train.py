@@ -74,7 +74,7 @@ train_transform =  Compose([
 # Initialize dataset and dataloader (replace with your paths)
 train_dataset = PBRDataset(
     input_data_path=OUTPUT_FOLDER,
-    transform=None
+    transform=train_transform
 )
 train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
 
