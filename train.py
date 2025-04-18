@@ -59,7 +59,7 @@ class MultiMaskUNet(nn.Module):
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 IN_CHANNELS = 7  # Adjust based on PBR maps
-NUM_CLASSES = 2  # Number of damage types
+NUM_CLASSES = 8  # Number of damage types
 BATCH_SIZE = 4
 LR = 0.0001
 EPOCHS = 50
