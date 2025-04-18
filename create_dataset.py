@@ -57,8 +57,7 @@ def create_mask(sample_path, degradi_list, resizer):
 
 	# Stack maps to create 2-channel tensor
 	mask = torch.cat([masks[mask_name] for mask_name in degradi_list], dim=0)
-	print(mask.shape)
-	
+
 	return mask
 
 
@@ -83,9 +82,9 @@ if __name__=="__main__":
 		
 		# Create and save mask
 		mask = create_mask(sample_path, degradi_list, resizer)
-		for i, deg in enumerate(mask):
+		for deg_index, deg in enumerate(mask):
 			if deg.sum() > 0:
-				degradi_dict[degradi_list[i]] += 1
+				degradi_dict[degradi_list[deg_index]] += 1
 		os.makedirs(os.path.join(OUTPUT_FOLDER, "masks"), exist_ok=True)
 		torch.save(mask, os.path.join(OUTPUT_FOLDER, "masks", f"mask_{str(i)}"))
 		

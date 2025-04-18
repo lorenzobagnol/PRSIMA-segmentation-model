@@ -14,9 +14,10 @@ from tqdm import tqdm
 OUTPUT_FOLDER = "/content/drive/MyDrive/Colab Notebooks/torch-data"
 
 class PBRDataset(Dataset):
-    def __init__(self, input_data_path, pbr_channels=7, transform=None):
+    def __init__(self, input_data_path, pbr_channels=7, spatial_transform=None, color_transform=None):
         self.input_data_path = input_data_path
-        self.transform = transform
+        self.spatial_transform = spatial_transform
+        self.color_transform = color_transform
         self.pbr_channels = pbr_channels
 
     def __len__(self):
@@ -30,8 +31,11 @@ class PBRDataset(Dataset):
         pbr_map = pbr_map / 255.0  # Normalize to [0,1]
         mask = mask / 255.0  # Normalize mask to [0,1] (assuming stored as 0-255)
 
-        if self.transform:
-            pbr_map = self.transform(pbr_map)
+        if self.spatial_transform:
+            pbr_map = self.spatial_transform(pbr_map)
+            mask = self.spatial_transform(mask)
+        if self.color_transform:
+            pbr_map = self.color_transform(pbr_map)
 
         return pbr_map, mask
   
@@ -64,17 +68,24 @@ BATCH_SIZE = 4
 LR = 0.0001
 EPOCHS = 50
 
-train_transform =  Compose([
+transform_spatial =  Compose([
     transforms.RandomHorizontalFlip(p=0.5),
     transforms.RandomVerticalFlip(p=0.5),
     transforms.RandomAffine(degrees=15, translate=(0.1, 0.1)),
+])
+transform_color = Compose([
+    transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+    transforms.RandomAdjustSharpness(sharpness_factor=2, p=0.5),
+    transforms.RandomAutocontrast(p=0.5),
+    transforms.RandomEqualize(p=0.5),    
     transforms.Normalize(mean=[0.5]*IN_CHANNELS, std=[0.5]*IN_CHANNELS),
 ])
 
 # Initialize dataset and dataloader (replace with your paths)
 train_dataset = PBRDataset(
     input_data_path=OUTPUT_FOLDER,
-    transform=train_transform
+    transform_spatial=transform_spatial,
+    transform_color=transform_color,
 )
 train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
 
