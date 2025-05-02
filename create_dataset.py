@@ -69,7 +69,7 @@ if __name__=="__main__":
 	os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 	samples = [d for d in os.listdir(INPUT_FOLDER) if os.path.isdir(os.path.join(INPUT_FOLDER, d))]
 
-	degradi_list = ["Cavillature", "Macchia", "Distacco"]#, "Patina biologica", "Rigonfiamento", "Esfoliazione", "Disgregazione", "Efflorescenze"]
+	degradi_list = ["Cavillature", "Macchia","Distacco"]#, "Patina biologica", "Rigonfiamento", "Esfoliazione", "Disgregazione", "Efflorescenze"]
 	degradi_dict = {deg: 0 for deg in degradi_list}
 	
 	for i, sample in enumerate(samples):
@@ -82,6 +82,9 @@ if __name__=="__main__":
 		
 		# Create and save mask
 		mask = create_mask(sample_path, degradi_list, resizer)
+		if torch.sum(mask) == 0:
+			continue
+
 		for deg_index, deg in enumerate(mask):
 			if deg.sum() > 0:
 				degradi_dict[degradi_list[deg_index]] += 1

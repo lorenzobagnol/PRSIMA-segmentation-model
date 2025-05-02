@@ -6,6 +6,4 @@ saved_model.pth
 
 # Ignore the images and masks data
 images-and-masks/raw-data/*
-images-and-masks/torch-data/*
-images-and-masks/raw-data/*
-images-and-masks/torch-data/*
+images-and-masks/torch-data*
