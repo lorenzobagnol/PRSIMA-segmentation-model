@@ -135,7 +135,7 @@ for epoch in tqdm(range(EPOCHS)):
         optimizer.zero_grad()
         outputs = model(images)
         dice_loss, bce_loss = loss_fn(outputs, masks)
-        loss = torch.sum(dice_loss + bce_loss)
+        loss = torch.sum(dice_loss, bce_loss)
         loss.backward()
         optimizer.step()
         
