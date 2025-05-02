@@ -68,12 +68,12 @@ BATCH_SIZE = 4
 LR = 0.0001
 EPOCHS = 50
 
-transform_spatial =  Compose([
+spatial_transform =  Compose([
     transforms.RandomHorizontalFlip(p=0.5),
     transforms.RandomVerticalFlip(p=0.5),
     transforms.RandomAffine(degrees=15, translate=(0.1, 0.1)),
 ])
-transform_color = Compose([
+color_transform = Compose([
     transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
     transforms.RandomAdjustSharpness(sharpness_factor=2, p=0.5),
     transforms.RandomAutocontrast(p=0.5),
@@ -84,8 +84,9 @@ transform_color = Compose([
 # Initialize dataset and dataloader (replace with your paths)
 train_dataset = PBRDataset(
     input_data_path=OUTPUT_FOLDER,
-    transform_spatial=transform_spatial,
-    transform_color=transform_color,
+    pbr_channels=IN_CHANNELS,
+    spatial_transform=spatial_transform,
+    color_transform=color_transform,
 )
 train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
 
@@ -113,7 +114,7 @@ def loss_fn(preds, targets):
     # Adjusted Dice Loss for sparse targets
     dice_loss = smp.losses.DiceLoss(
         mode='multilabel',
-        smooth=100.0,  # Increased smoothness for sparse masks
+        #smooth=100.0,  # Increased smoothness for sparse masks
         from_logits=False, # Crucial for Sigmoid outputs!
         #ignore_index=0
     )(preds, targets)
