@@ -26,14 +26,19 @@ class PBRDataset(Dataset):
     def __getitem__(self, idx):
         # Load multi-channel PBR maps (albedo, normal, roughness, metallic, etc.)
         pbr_map = torch.load(os.path.join(self.input_data_path, "data", f"data_{str(idx)}")).float()  # Shape: (C, H, W)
-        mask = torch.load(os.path.join(self.input_data_path, "masks", f"mask_{str(idx)}")).float() # (2, H, W)
+        mask = torch.load(os.path.join(self.input_data_path, "masks", f"mask_{str(idx)}")).float() # (NUM_CLASSES, H, W)
 
         pbr_map = pbr_map / 255.0  # Normalize to [0,1]
         mask = mask / 255.0  # Normalize mask to [0,1] (assuming stored as 0-255)
 
         if self.spatial_transform:
-            pbr_map = self.spatial_transform(pbr_map)
-            mask = self.spatial_transform(mask)
+            # Apply spatial transformations
+            stacked = torch.cat([pbr_map, mask], dim=0)
+            stacked = self.spatial_transform(stacked)
+            # Split back into separate tensors
+            pbr_map = stacked[:self.pbr_channels]
+            mask = stacked[self.pbr_channels:]
+
         if self.color_transform:
             pbr_map = self.color_transform(pbr_map)
 
@@ -135,13 +140,17 @@ for epoch in tqdm(range(EPOCHS)):
         optimizer.zero_grad()
         outputs = model(images)
         dice_loss, bce_loss = loss_fn(outputs, masks)
-        loss = torch.sum(dice_loss, bce_loss)
+        loss = dice_loss + bce_loss
         loss.backward()
         optimizer.step()
         
         running_loss["loss"]+= loss.item()
         running_loss["dice_loss"]+= dice_loss.item()
         running_loss["bce_loss"]+= bce_loss.item()
+    
+    # After the loop:
+    for key in running_loss:
+        running_loss[key] /= len(train_loader)
     
     scheduler.step()
     torch.save(model.state_dict(), "./saved_model.pth")
