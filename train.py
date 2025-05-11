@@ -29,7 +29,6 @@ class PBRDataset(Dataset):
         mask = torch.load(os.path.join(self.input_data_path, "masks", f"mask_{str(idx)}")).float() # (NUM_CLASSES, H, W)
 
         pbr_map = pbr_map / 255.0  # Normalize to [0,1]
-        mask = mask / 255.0  # Normalize mask to [0,1] (assuming stored as 0-255)
 
         if self.spatial_transform:
             # Apply spatial transformations
@@ -76,13 +75,10 @@ EPOCHS = 50
 spatial_transform =  Compose([
     transforms.RandomHorizontalFlip(p=0.5),
     transforms.RandomVerticalFlip(p=0.5),
-    transforms.RandomAffine(degrees=15, translate=(0.1, 0.1)),
+    transforms.RandomAffine(degrees=20, translate=(0.1, 0.1)),
+    transforms.ElasticTransform(alpha=50.0, sigma=5.0),
 ])
 color_transform = Compose([
-    transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
-    transforms.RandomAdjustSharpness(sharpness_factor=2, p=0.5),
-    transforms.RandomAutocontrast(p=0.5),
-    transforms.RandomEqualize(p=0.5),    
     transforms.Normalize(mean=[0.5]*IN_CHANNELS, std=[0.5]*IN_CHANNELS),
 ])
 
@@ -91,7 +87,7 @@ train_dataset = PBRDataset(
     input_data_path=OUTPUT_FOLDER,
     pbr_channels=IN_CHANNELS,
     spatial_transform=spatial_transform,
-    color_transform=color_transform,
+    color_transform=None,
 )
 train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
 
@@ -105,7 +101,7 @@ else:
 
 def loss_fn(preds, targets):
     # Convert targets to float (if not already)
-    targets = targets.float().clamp(0.0, 1.0) 
+    targets = (targets>0.5).float()
     
     # Calculate class weights (per batch)
     # positive_pixels = targets.sum(dim=[0, 2, 3], keepdim=True)  # (1, C, 1, 1)
@@ -113,15 +109,15 @@ def loss_fn(preds, targets):
     # positive_weights = (total_pixels - positive_pixels) / (positive_pixels + 1e-6)
     
     # Weighted BCE (handles existing Sigmoid output)
-    bce_loss = nn.BCELoss(reduction='mean')(preds, targets)
-    #weighted_bce = (bce_loss * positive_weights).mean()
+    bce_loss = nn.BCEWithLogitsLoss(reduction='mean')(preds, targets)
+    # weighted_bce = (bce_loss * positive_weights).mean()
     
     # Adjusted Dice Loss for sparse targets
     dice_loss = smp.losses.DiceLoss(
         mode='multilabel',
-        #smooth=100.0,  # Increased smoothness for sparse masks
-        from_logits=False, # Crucial for Sigmoid outputs!
-        #ignore_index=0
+        smooth=100.0,  # Increased smoothness for sparse masks
+        from_logits=True, # Crucial for Sigmoid outputs!
+        ignore_index=0
     )(preds, targets)
     
     return dice_loss, bce_loss
