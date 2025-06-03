@@ -50,7 +50,7 @@ class MultiMaskUNet(nn.Module):
         super().__init__()
         
         self.base_model = smp.Unet(
-            encoder_name="resnet50",
+            encoder_name="efficientnet-b4",
             encoder_weights="imagenet",
             in_channels=in_channels,
             classes=out_channels,  # Output 2 channels
@@ -62,7 +62,7 @@ class MultiMaskUNet(nn.Module):
 
     def forward(self, x):
         x = self.base_model(x)
-        return self.final_activation(x)
+        return x
 
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
