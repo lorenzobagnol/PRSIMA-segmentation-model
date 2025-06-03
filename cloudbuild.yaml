@@ -1,0 +1,36 @@
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+  
+    args: ['build', '-t', 'europe-west12-docker.pkg.dev/architecture-degradi/ml-inference-repo/pbr-mask-api:latest', '.']
+  
+  # Push the container image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'europe-west12-docker.pkg.dev/architecture-degradi/ml-inference-repo/pbr-mask-api:latest']
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'pbr-mask-api'
+      - '--image'
+      - 'europe-west12-docker.pkg.dev/architecture-degradi/ml-inference-repo/pbr-mask-api:latest'
+      - '--region'
+      - 'europe-west12'
+      - '--allow-unauthenticated'
+      - '--memory'
+      - '4Gi'
+      - '--cpu'
+      - '2'
+      - '--timeout'
+      - '900'
+      - '--max-instances'
+      - '5'
+      - '--concurrency'
+      - '10'
+
+options:
+  machineType: 'E2_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
