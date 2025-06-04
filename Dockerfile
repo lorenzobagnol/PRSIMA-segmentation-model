@@ -1,7 +1,6 @@
 FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y wget
-ENV DEBIAN_FRONTEND=
 
 WORKDIR /root/
 # Insall miniconda
@@ -18,12 +17,12 @@ ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=graphics,utility,compute
 
 # Install the right version of python and the required packages
-WORKDIR /home/workspace/
-COPY . ./degradi-finder/
+WORKDIR /app
+COPY . .
 RUN conda create --name degradi python==3.13
-RUN conda run -n degradi pip install --no-cache-dir -r ./degradi-finder/requirements.txt
+RUN conda run -n degradi pip install --no-cache-dir -r ./requirements.txt
 
 # Expose port
 EXPOSE 8080
 # Run the application
-CMD ["python", "main.py"]
+CMD ["python", "api_service.py"]
