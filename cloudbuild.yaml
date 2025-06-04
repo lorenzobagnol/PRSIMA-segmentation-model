@@ -21,16 +21,16 @@ steps:
       - 'europe-west12'
       - '--allow-unauthenticated'
       - '--memory'
-      - '4Gi'
+      - '32Gi'
       - '--cpu'
-      - '2'
+      - '4'
       - '--timeout'
       - '900'
       - '--max-instances'
       - '5'
       - '--concurrency'
-      - '10'
+      - '2'
 
 options:
-  machineType: 'c4a-standard-8'
+  machineType: 'E2_HIGHCPU_8'
   logging: CLOUD_LOGGING_ONLY
