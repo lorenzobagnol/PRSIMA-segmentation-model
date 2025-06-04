@@ -70,6 +70,15 @@ def load_model():
     MODEL.eval()  # Set to evaluation mode
     print("Model loaded successfully!")
 
+def normalize_tensor(tensor):
+    """Normalize tensor to [0,1] range based on its dtype"""
+    if tensor.dtype == torch.uint8:
+        return tensor.float() / 255.0
+    elif tensor.dtype == torch.uint16:
+        return tensor.float() / 65535.0
+    else:
+        return tensor.float()
+
 def create_pbr_map_from_files(ao_file, normal_file, color_file):
     """Create PBR map from uploaded files"""
     # Read files into tensors
@@ -83,6 +92,11 @@ def create_pbr_map_from_files(ao_file, normal_file, color_file):
         ao = torchio.decode_image(ao, mode=ImageReadMode.GRAY).data
         normal = torchio.decode_image(normal, mode=ImageReadMode.RGB).data
         color = torchio.decode_image(color, mode=ImageReadMode.RGB).data
+
+        # Normalize tensors
+        ao = normalize_tensor(ao)
+        normal = normalize_tensor(normal)
+        color = normalize_tensor(color)
 
         if ao.shape[1:] != normal.shape[1:] or ao.shape[1:] != color.shape[1:]:
             raise ValueError("All input images must have the same dimensions")
@@ -101,9 +115,9 @@ def generate_masks(pbr_tensor, resize=True):
     if resize:
         original_size = pbr_tensor.shape[1:]
         pbr_tensor = torchvision.transforms.Resize(RESOLUTION)(pbr_tensor)
-    
+       
     # Move to device and add batch dimension
-    pbr_input = pbr_tensor.unsqueeze(0).float().to(DEVICE)
+    pbr_input = pbr_tensor.unsqueeze(0).to(DEVICE)
     
     # Generate prediction
     with torch.no_grad():
