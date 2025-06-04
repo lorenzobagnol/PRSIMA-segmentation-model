@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PBR Mask Generator Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+        }
+        input[type="file"]::-webkit-file-upload-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: white;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        button:disabled {
+            background: rgba(255, 255, 255, 0.3);
+            cursor: not-allowed;
+            transform: none;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .status.loading {
+            background: rgba(255, 193, 7, 0.2);
+            border: 2px solid #ffc107;
+        }
+        .status.success {
+            background: rgba(40, 167, 69, 0.2);
+            border: 2px solid #28a745;
+        }
+        .status.error {
+            background: rgba(220, 53, 69, 0.2);
+            border: 2px solid #dc3545;
+        }
+        .api-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+        }
+        .api-url {
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 5px 10px;
+            border-radius: 5px;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 PBR Mask Generator</h1>
+        
+        <div class="api-info">
+            <strong>API Endpoint:</strong><br>
+            <div class="api-url">https://pbr-mask-api-429808723098.europe-west12.run.app/generate-masks</div>
+        </div>
+
+        <form id="maskForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="aoImage">AO (Ambient Occlusion) Image:</label>
+                <input type="file" id="aoImage" name="ao_image" accept="image/*" required>
+            </div>
+
+            <div class="form-group">
+                <label for="normalImage">Normal Map Image:</label>
+                <input type="file" id="normalImage" name="normal_image" accept="image/*" required>
+            </div>
+
+            <div class="form-group">
+                <label for="baseColorImage">Base Color Image:</label>
+                <input type="file" id="baseColorImage" name="basecolor_image" accept="image/*" required>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="resize" name="resize" checked>
+                <label for="resize">Resize images to 1024x1024 (recommended)</label>
+            </div>
+
+            <button type="submit" id="submitBtn">
+                🚀 Generate Masks
+            </button>
+        </form>
+
+        <div id="status" class="status" style="display: none;"></div>
+    </div>
+
+    <script>
+        document.getElementById('maskForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const statusDiv = document.getElementById('status');
+            
+            // Get form data
+            const formData = new FormData();
+            formData.append('ao_image', document.getElementById('aoImage').files[0]);
+            formData.append('normal_image', document.getElementById('normalImage').files[0]);
+            formData.append('basecolor_image', document.getElementById('baseColorImage').files[0]);
+            formData.append('resize', document.getElementById('resize').checked);
+            
+            // Validate files
+            if (!formData.get('ao_image') || !formData.get('normal_image') || !formData.get('basecolor_image')) {
+                showStatus('Please select all three image files.', 'error');
+                return;
+            }
+            
+            // Update UI
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Processing...';
+            showStatus('Uploading images and generating masks...', 'loading');
+            
+            try {
+                const response = await fetch('https://pbr-mask-api-429808723098.europe-west12.run.app/generate-masks', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    
+                    // Create download link
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'generated_masks.zip';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                    
+                    showStatus('✅ Success! Masks generated and downloaded!', 'success');
+                } else {
+                    const errorText = await response.text();
+                    showStatus(`❌ Error: ${response.status} - ${errorText}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`❌ Network error: ${error.message}`, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Generate Masks';
+            }
+        });
+        
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+        }
+        
+        // Test API health on page load
+        window.addEventListener('load', async function() {
+            try {
+                const response = await fetch('https://pbr-mask-api-429808723098.europe-west12.run.app/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    showStatus(`✅ API is healthy! Device: ${data.device}`, 'success');
+                } else {
+                    showStatus('⚠️ API health check failed', 'error');
+                }
+            } catch (error) {
+                showStatus('⚠️ Cannot connect to API', 'error');
+            }
+        });
+    </script>
+</body>
+</html>
