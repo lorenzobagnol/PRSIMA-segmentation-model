@@ -62,6 +62,7 @@ def load_model():
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using device: {DEVICE}")
     
+    download_model_from_gcs()
     MODEL = MultiMaskUNet(in_channels=IN_CHANNELS, out_channels=NUM_CLASSES).to(DEVICE)
     MODEL.load_state_dict(torch.load('./saved_model.pth', weights_only=True, map_location=torch.device(DEVICE)))
     MODEL.eval()  # Set to evaluation mode
