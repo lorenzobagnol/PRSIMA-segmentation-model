@@ -1,3 +1,4 @@
+import traceback
 import torch
 import torch.nn as nn
 import segmentation_models_pytorch as smp
@@ -79,6 +80,9 @@ def create_pbr_map_from_files(ao_file, normal_file, color_file):
     ao = torchio.decode_image(ao_bytes, mode=ImageReadMode.GRAY).data
     normal = torchio.decode_image(normal_bytes, mode=ImageReadMode.RGB).data
     color = torchio.decode_image(color_bytes, mode=ImageReadMode.RGB).data
+
+    if ao.shape[1:] != normal.shape[1:] or ao.shape[1:] != color.shape[1:]:
+        raise ValueError("All input images must have the same dimensions")
     
     # Stack maps to create 7-channel tensor
     pbr_map = torch.cat([ao, normal, color], dim=0)
@@ -181,8 +185,13 @@ async def generate_masks_endpoint(
                 filename="generated_masks.zip"
             )
             
+    except HTTPException:
+        raise
     except Exception as e:
+        print(f"Detailed error: {str(e)}", flush=True)  # Ensure it appears in logs
+        print(f"Traceback: {traceback.format_exc()}", flush=True)
         raise HTTPException(status_code=500, detail=f"Error processing images: {str(e)}")
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8080)
