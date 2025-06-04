@@ -25,4 +25,4 @@ RUN conda run -n degradi pip install --no-cache-dir -r ./requirements.txt
 # Expose port
 EXPOSE 8080
 # Run the application
-CMD ["python", "api_service.py"]
+CMD ["conda", "run", "-n", "degradi", "python", "api_service.py"]
