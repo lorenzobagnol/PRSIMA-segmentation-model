@@ -5,7 +5,7 @@ import segmentation_models_pytorch as smp
 import torchvision
 import torchvision.io as torchio
 from torchvision.io import ImageReadMode
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, BackgroundTasks, File, UploadFile, HTTPException
 from fastapi.responses import FileResponse
 from contextlib import asynccontextmanager
 import io
@@ -14,6 +14,7 @@ import tempfile
 import zipfile
 from typing import List
 import uvicorn
+import shutil
 
 class MultiMaskUNet(nn.Module):
     def __init__(self, in_channels=8, out_channels=2):
@@ -72,22 +73,28 @@ def load_model():
 def create_pbr_map_from_files(ao_file, normal_file, color_file):
     """Create PBR map from uploaded files"""
     # Read files into tensors
-    ao_bytes = io.BytesIO(ao_file)
-    normal_bytes = io.BytesIO(normal_file)
-    color_bytes = io.BytesIO(color_file)
-    
-    # Decode images
-    ao = torchio.decode_image(ao_bytes, mode=ImageReadMode.GRAY).data
-    normal = torchio.decode_image(normal_bytes, mode=ImageReadMode.RGB).data
-    color = torchio.decode_image(color_bytes, mode=ImageReadMode.RGB).data
+    try:
+        # Convert bytes to writable tensors
+        ao = torch.frombuffer(bytearray(ao_file), dtype=torch.uint8)
+        normal = torch.frombuffer(bytearray(normal_file), dtype=torch.uint8)
+        color = torch.frombuffer(bytearray(color_file), dtype=torch.uint8)
 
-    if ao.shape[1:] != normal.shape[1:] or ao.shape[1:] != color.shape[1:]:
-        raise ValueError("All input images must have the same dimensions")
-    
-    # Stack maps to create 7-channel tensor
-    pbr_map = torch.cat([ao, normal, color], dim=0)
-    
-    return pbr_map
+        # Decode images
+        ao = torchio.decode_image(ao, mode=ImageReadMode.GRAY).data
+        normal = torchio.decode_image(normal, mode=ImageReadMode.RGB).data
+        color = torchio.decode_image(color, mode=ImageReadMode.RGB).data
+
+        if ao.shape[1:] != normal.shape[1:] or ao.shape[1:] != color.shape[1:]:
+            raise ValueError("All input images must have the same dimensions")
+        
+        # Stack maps to create 7-channel tensor
+        pbr_map = torch.cat([ao, normal, color], dim=0)
+        
+        return pbr_map
+    except Exception as e:
+        print(f"Error in create_pbr_map_from_files: {str(e)}")
+        print(traceback.format_exc())
+        raise
 
 def generate_masks(pbr_tensor, resize=True):
     """Generate masks from PBR tensor"""
@@ -115,6 +122,14 @@ def generate_masks(pbr_tensor, resize=True):
     
     return masks
 
+def remove_temp_dir(temp_dir):
+    """Remove temporary directory and its contents"""
+    try:
+        shutil.rmtree(temp_dir)
+        print(f"Temporary directory {temp_dir} removed successfully.")
+    except Exception as e:
+        print(f"Failed to remove temporary directory {temp_dir}: {e}")
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Load the ML model
@@ -136,10 +151,11 @@ async def health_check():
 
 @app.post("/generate-masks")
 async def generate_masks_endpoint(
+    background_tasks: BackgroundTasks,
     ao_image: UploadFile = File(..., description="AO (Ambient Occlusion) image"),
     normal_image: UploadFile = File(..., description="Normal map image"),
     basecolor_image: UploadFile = File(..., description="Base color image"),
-    resize: bool = True
+    resize: bool = True,
 ):
     """
     Generate segmentation masks from PBR texture maps
@@ -162,28 +178,30 @@ async def generate_masks_endpoint(
         # Generate masks
         masks = generate_masks(pbr_tensor, resize=resize)
         
-        # Create temporary directory for output files
-        with tempfile.TemporaryDirectory() as temp_dir:
-            mask_files = []
+        # Create temp dir (not auto-cleaned)
+        temp_dir = tempfile.mkdtemp()
+
+        mask_files = []
             
-            # Save masks as PNG files
-            for i, mask in enumerate(masks):
-                mask_path = os.path.join(temp_dir, f"mask_{i}.png")
-                torchvision.io.write_png(mask.unsqueeze(0), mask_path)
-                mask_files.append(mask_path)
-            
-            # Create ZIP file with all masks
-            zip_path = os.path.join(temp_dir, "masks.zip")
-            with zipfile.ZipFile(zip_path, 'w') as zipf:
-                for mask_file in mask_files:
-                    zipf.write(mask_file, os.path.basename(mask_file))
-            
-            # Return ZIP file
-            return FileResponse(
-                zip_path,
-                media_type="application/zip",
-                filename="generated_masks.zip"
-            )
+        # Save masks as PNG files
+        for i, mask in enumerate(masks):
+            mask_path = os.path.join(temp_dir, f"mask_{i}.png")
+            torchvision.io.write_png(mask.unsqueeze(0), mask_path)
+            mask_files.append(mask_path)
+        
+        # Create ZIP file with all masks
+        zip_path = os.path.join(temp_dir, "masks.zip")
+        with zipfile.ZipFile(zip_path, 'w') as zipf:
+            for mask_file in mask_files:
+                zipf.write(mask_file, os.path.basename(mask_file))
+        
+        background_tasks.add_task(remove_temp_dir, temp_dir)
+        # Return ZIP file
+        return FileResponse(
+            zip_path,
+            media_type="application/zip",
+            filename="generated_masks.zip"
+        )
             
     except HTTPException:
         raise
