@@ -1,35 +1,74 @@
 import requests
 import os
+from pathlib import Path
+
+def find_image_file(base_name, allowed_formats=["jpg", "jpeg", "png"]):
+    """
+    Find an image file with the given base name and one of the allowed formats.
+    Returns the full path if found, None otherwise.
+    """
+    for ext in allowed_formats:
+        file_path = f"{base_name}.{ext}"
+        if os.path.exists(file_path):
+            return file_path
+    return None
+
+def get_mime_type(file_path):
+    """Get the appropriate MIME type based on file extension."""
+    ext = Path(file_path).suffix.lower().lstrip('.')
+    mime_types = {
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'png': 'image/png'
+    }
+    return mime_types.get(ext, 'image/jpeg')
 
 def test_api():
     # Your API endpoint
     url = "https://pbr-mask-api-429808723098.europe-west12.run.app/generate-masks"
     
-    # Path to your image files
-    ao_path = "AO.jpg"  # Replace with your actual file path
-    normal_path = "Normal.jpg"  # Replace with your actual file path
-    basecolor_path = "BaseColor.jpg"  # Replace with your actual file path
+    # Allowed image formats
+    allowed_formats = ["jpg", "jpeg", "png"]
     
-    # Check if files exist
-    for file_path in [ao_path, normal_path, basecolor_path]:
-        if not os.path.exists(file_path):
-            print(f"Error: File {file_path} not found!")
+    # Base names for your image files (without extension)
+    image_files = {
+        'ao_image': 'AO',
+        'normal_image': 'Normal', 
+        'basecolor_image': 'BaseColor'
+    }
+    
+    # Find actual file paths
+    file_paths = {}
+    for key, base_name in image_files.items():
+        file_path = find_image_file(base_name, allowed_formats)
+        if file_path:
+            file_paths[key] = file_path
+            print(f"✅ Found {key}: {file_path}")
+        else:
+            print(f"❌ Error: No image file found for {base_name} with extensions: {allowed_formats}")
             return
     
     # Prepare files for upload
-    files = {
-        'ao_image': ('AO.jpg', open(ao_path, 'rb'), 'image/jpeg'),
-        'normal_image': ('Normal.jpg', open(normal_path, 'rb'), 'image/jpeg'),
-        'basecolor_image': ('BaseColor.jpg', open(basecolor_path, 'rb'), 'image/jpeg')
-    }
-    
-    # Additional parameters
-    data = {
-        'resize': True
-    }
+    files = {}
+    file_handles = []  # Keep track of file handles for cleanup
     
     try:
-        print("Sending request to API...")
+        for key, file_path in file_paths.items():
+            file_handle = open(file_path, 'rb')
+            file_handles.append(file_handle)
+            
+            # Get the actual filename and MIME type
+            filename = os.path.basename(file_path)
+            mime_type = get_mime_type(file_path)
+            
+            files[key] = (filename, file_handle, mime_type)
+        
+        # Additional parameters
+        data = {
+            'resize': True
+        }
+        
+        print("\nSending request to API...")
         response = requests.post(url, files=files, data=data, timeout=300)
         
         if response.status_code == 200:
@@ -47,9 +86,9 @@ def test_api():
     except requests.exceptions.RequestException as e:
         print(f"❌ Request failed: {e}")
     finally:
-        # Close file handles
-        for file_tuple in files.values():
-            file_tuple[1].close()
+        # Close all file handles
+        for file_handle in file_handles:
+            file_handle.close()
 
 def test_health():
     """Test the health endpoint first"""
