@@ -6,6 +6,7 @@ torch~=2.6.0
 torchvision~=0.21.0
 uvicorn~=0.34.2
 python-multipart~=0.0.20
+google-cloud-storage~=3.1.0
 
 nvidia-cublas-cu12~=12.4.5.8
 nvidia-cuda-cupti-cu12~=12.4.127

@@ -40,6 +40,21 @@ IN_CHANNELS = 7
 NUM_CLASSES = 2  
 RESOLUTION = (1024, 1024)
 
+def download_model_from_gcs():
+    """Download model from Google Cloud Storage if not exists locally"""
+    if not os.path.exists('./saved_model.pth'):
+        print("Model not found locally, downloading from GCS...")
+        try:
+            from google.cloud import storage
+            client = storage.Client()
+            bucket = client.bucket('architecture-degradi-models')
+            blob = bucket.blob('saved_model.pth')
+            blob.download_to_filename('./saved_model.pth')
+            print("Model downloaded successfully!")
+        except Exception as e:
+            print(f"Failed to download model: {e}")
+            raise
+
 def load_model():
     """Load model once at startup"""
     global MODEL, DEVICE
