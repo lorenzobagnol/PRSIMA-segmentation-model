@@ -8,6 +8,8 @@ uvicorn~=0.34.2
 python-multipart~=0.0.20
 google-cloud-storage~=3.1.0
 
+
+# CUDA dependencies - comment these lines if you are not using a CUDA machine
 nvidia-cublas-cu12~=12.4.5.8
 nvidia-cuda-cupti-cu12~=12.4.127
 nvidia-cuda-nvrtc-cu12~=12.4.127
