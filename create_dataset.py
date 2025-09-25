@@ -3,12 +3,16 @@ import os
 import torchvision
 import torchvision.io as torchio
 from torchvision.io import ImageReadMode 
+import shutil
 
 
 # Configuration
 INPUT_FOLDER = "./images-and-masks/raw-data"  # Folder with subfolders for each sample
 OUTPUT_FOLDER = "./images-and-masks/torch-data"
 RESOLUTION = (1024, 1024)  # Set your desired resolution
+DEGRADI_LIST = ["Cavillature"]#, "Distacco",  "Macchia", "Patina biologica", "Rigonfiamento", "Esfoliazione", "Disgregazione", "Efflorescenze"]
+PBR_MAPS = ["AO", "Normal", "BaseColor"]  # TODO change also in the code below
+USE_ONLY_NOTNA = True
 
 # Folder structure should be:
 # INPUT_FOLDER/
@@ -41,22 +45,25 @@ def create_pbr_map(sample_path, resizer):
 
 
 
-def create_mask(sample_path, degradi_list, resizer):
+def create_mask(sample_path, resizer):
 
 	mask_path = os.path.join(sample_path, "Maschere")
 	assert os.path.isdir(mask_path), f"Mask folder not found in {sample_path}"
 	
 	masks = {}
 	
-	for i, mask_name in enumerate(degradi_list):
+	for i, mask_name in enumerate(DEGRADI_LIST):
 		
 		if os.path.isfile(os.path.join(mask_path, mask_name + ".jpg")):
 			masks[mask_name] = (resizer(torchio.decode_image(os.path.join(mask_path, mask_name + ".jpg"), mode=ImageReadMode.GRAY).data) > 127).float() 
 		else: 
 			masks[mask_name] = (resizer(torch.zeros((1,)+RESOLUTION)) > 127).float() 
 
+	if len(DEGRADI_LIST) == 1:
+		return masks[DEGRADI_LIST[0]]
+
 	# Stack maps to create 2-channel tensor
-	mask = torch.cat([masks[mask_name] for mask_name in degradi_list], dim=0)
+	mask = torch.cat([masks[mask_name] for mask_name in DEGRADI_LIST], dim=0)
 
 	return mask
 
@@ -67,28 +74,36 @@ if __name__=="__main__":
 
 	# Process all samples
 	os.makedirs(OUTPUT_FOLDER, exist_ok=True)
-	samples = [d for d in os.listdir(INPUT_FOLDER) if os.path.isdir(os.path.join(INPUT_FOLDER, d))]
+	# delete folder if already exists
+	if os.path.exists(os.path.join(OUTPUT_FOLDER, "data")):
+		shutil.rmtree(os.path.join(OUTPUT_FOLDER, "data"))
+	if os.path.exists(os.path.join(OUTPUT_FOLDER, "masks")):
+		shutil.rmtree(os.path.join(OUTPUT_FOLDER, "masks"))
+	os.makedirs(os.path.join(OUTPUT_FOLDER, "data"), exist_ok=True)
+	os.makedirs(os.path.join(OUTPUT_FOLDER, "masks"), exist_ok=True)
 
-	degradi_list = ["Cavillature", "Macchia"]# , "Distacco"]#, "Patina biologica", "Rigonfiamento", "Esfoliazione", "Disgregazione", "Efflorescenze"]
-	degradi_dict = {deg: 0 for deg in degradi_list}
+	degradi_dict = {deg: 0 for deg in DEGRADI_LIST}
 	
+	samples = [d for d in os.listdir(INPUT_FOLDER) if os.path.isdir(os.path.join(INPUT_FOLDER, d))]
 	for i, sample in enumerate(samples):
 		sample_path = os.path.join(INPUT_FOLDER, sample)
 		
-		# Create and save PBR map
+		# Create PBR map
 		pbr_map = create_pbr_map(sample_path, resizer)
-		os.makedirs(os.path.join(OUTPUT_FOLDER, "data"), exist_ok=True)
-		torch.save(pbr_map, os.path.join(OUTPUT_FOLDER, "data", f"data_{str(i)}"))
 		
-		# Create and save mask
-		mask = create_mask(sample_path, degradi_list, resizer)
-		# if torch.sum(mask) == 0:
-		# 	continue
+		# Create mask
+		mask = create_mask(sample_path, resizer)
 
 		for deg_index, deg in enumerate(mask):
 			if deg.sum() > 0:
-				degradi_dict[degradi_list[deg_index]] += 1
-		os.makedirs(os.path.join(OUTPUT_FOLDER, "masks"), exist_ok=True)
+				degradi_dict[DEGRADI_LIST[deg_index]] += 1
+		
+		# Check if there is a degradation in the mask
+		if len(DEGRADI_LIST)==1 and USE_ONLY_NOTNA and torch.sum(mask) == 0:
+			continue
+
+		# Save tensors
+		torch.save(pbr_map, os.path.join(OUTPUT_FOLDER, "data", f"data_{str(i)}"))
 		torch.save(mask, os.path.join(OUTPUT_FOLDER, "masks", f"mask_{str(i)}"))
 		
 	print(degradi_dict)
