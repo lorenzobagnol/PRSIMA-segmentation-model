@@ -62,7 +62,7 @@ def create_mask(sample_path, resizer):
 	if len(DEGRADI_LIST) == 1:
 		return masks[DEGRADI_LIST[0]]
 
-	# Stack maps to create 2-channel tensor
+	# Cat maps in a single 2-channel tensor
 	mask = torch.cat([masks[mask_name] for mask_name in DEGRADI_LIST], dim=0)
 
 	return mask
