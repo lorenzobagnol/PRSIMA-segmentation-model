@@ -20,7 +20,7 @@ class MultiMaskUNet(nn.Module):
         super().__init__()
         
         self.base_model = smp.Unet(
-            encoder_name="efficientnet-b4",
+            encoder_name="resnet50",
             encoder_weights="imagenet",
             in_channels=in_channels,
             classes=out_channels,  
@@ -128,7 +128,7 @@ def generate_mask(pbr_tensor, resize=True):  # Renamed from generate_masks to ge
     mask = output[0, :]  # Get the first (and only) channel
     if resize:
         mask = torchvision.transforms.Resize(original_size)(mask.unsqueeze(0)).squeeze(0)
-    mask = (mask > 0.5).to(torch.uint8) * 255  # Binarize the mask
+    mask = (mask > 0.8).to(torch.uint8) * 255  # Binarize the mask
     
     return mask
 
