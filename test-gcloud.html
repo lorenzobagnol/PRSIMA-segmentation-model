@@ -124,7 +124,7 @@
         
         <div class="api-info">
             <strong>API Endpoint:</strong><br>
-            <div class="api-url">https://pbr-mask-api-429808723098.europe-west12.run.app/generate-masks</div>
+            <div class="api-url">https://pbr-mask-api-429808723098.europe-west12.run.app/generate-mask</div>
         </div>
 
         <form id="maskForm" enctype="multipart/form-data">
@@ -182,7 +182,7 @@
             showStatus('Uploading images and generating masks...', 'loading');
             
             try {
-                const response = await fetch('https://pbr-mask-api-429808723098.europe-west12.run.app/generate-masks', {
+                const response = await fetch('https://pbr-mask-api-429808723098.europe-west12.run.app/generate-mask', {
                     method: 'POST',
                     body: formData
                 });

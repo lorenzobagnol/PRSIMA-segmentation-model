@@ -8,6 +8,7 @@ from torchvision.io import ImageReadMode
 from fastapi import FastAPI, BackgroundTasks, File, UploadFile, HTTPException
 from fastapi.responses import FileResponse
 from contextlib import asynccontextmanager
+from fastapi.middleware.cors import CORSMiddleware 
 import io
 import os
 import tempfile
@@ -150,6 +151,15 @@ async def lifespan(app: FastAPI):
 
 # Initialize FastAPI app
 app = FastAPI(title="PBR Mask Generation API", version="1.0.0", lifespan=lifespan)
+
+# Add CORS middleware - for accessing the API
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins. In production, specify your frontend domain
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allow all headers
+)
 
 @app.get("/")
 async def root():
