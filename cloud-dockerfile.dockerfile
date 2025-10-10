@@ -25,6 +25,11 @@ RUN --mount=type=cache,target=/root/.cache \
 ENV PATH="/root/conda/bin:${PATH}"
 RUN conda init && conda clean -afy
 
+# needed to accept Terms of Use and to run anaconda in a non-interactive shell
+RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main && \
+    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
+
+
 
 # Env vars for the nvidia-container-runtime.
 ENV NVIDIA_VISIBLE_DEVICES=all
