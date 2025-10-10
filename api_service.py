@@ -11,13 +11,12 @@ from contextlib import asynccontextmanager
 import io
 import os
 import tempfile
-import zipfile
 from typing import List
 import uvicorn
 import shutil
 
 class MultiMaskUNet(nn.Module):
-    def __init__(self, in_channels=8, out_channels=2):
+    def __init__(self, in_channels=8, out_channels=1): 
         super().__init__()
         
         self.base_model = smp.Unet(
@@ -39,7 +38,7 @@ class MultiMaskUNet(nn.Module):
 MODEL = None
 DEVICE = None
 IN_CHANNELS = 7  
-NUM_CLASSES = 2  
+NUM_CLASSES = 1 
 RESOLUTION = (1024, 1024)
 
 def download_model_from_gcs():
@@ -110,8 +109,8 @@ def create_pbr_map_from_files(ao_file, normal_file, color_file):
         print(traceback.format_exc())
         raise
 
-def generate_masks(pbr_tensor, resize=True):
-    """Generate masks from PBR tensor"""
+def generate_mask(pbr_tensor, resize=True):  # Renamed from generate_masks to generate_mask
+    """Generate single mask from PBR tensor"""
     if resize:
         original_size = pbr_tensor.shape[1:]
         pbr_tensor = torchvision.transforms.Resize(RESOLUTION)(pbr_tensor)
@@ -125,24 +124,21 @@ def generate_masks(pbr_tensor, resize=True):
     
     output = output.squeeze(0).cpu()
     
-    # Process masks
-    masks = []
-    for i in range(NUM_CLASSES):
-        mask = output[i, :]
-        if resize:
-            mask = torchvision.transforms.Resize(original_size)(mask.unsqueeze(0)).squeeze(0)
-        mask = (mask > 0.5).to(torch.uint8) * 255  # Binarize the mask
-        masks.append(mask)
+    # Process single mask
+    mask = output[0, :]  # Get the first (and only) channel
+    if resize:
+        mask = torchvision.transforms.Resize(original_size)(mask.unsqueeze(0)).squeeze(0)
+    mask = (mask > 0.5).to(torch.uint8) * 255  # Binarize the mask
     
-    return masks
+    return mask
 
-def remove_temp_dir(temp_dir):
-    """Remove temporary directory and its contents"""
+def remove_temp_file(temp_file):  
+    """Remove temporary file"""
     try:
-        shutil.rmtree(temp_dir)
-        print(f"Temporary directory {temp_dir} removed successfully.")
+        os.remove(temp_file)
+        print(f"Temporary file {temp_file} removed successfully.")
     except Exception as e:
-        print(f"Failed to remove temporary directory {temp_dir}: {e}")
+        print(f"Failed to remove temporary file {temp_file}: {e}")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -163,8 +159,8 @@ async def root():
 async def health_check():
     return {"status": "healthy", "model_loaded": MODEL is not None, "device": DEVICE}
 
-@app.post("/generate-masks")
-async def generate_masks_endpoint(
+@app.post("/generate-mask")  # Renamed endpoint
+async def generate_mask_endpoint(
     background_tasks: BackgroundTasks,
     ao_image: UploadFile = File(..., description="AO (Ambient Occlusion) image"),
     normal_image: UploadFile = File(..., description="Normal map image"),
@@ -172,7 +168,7 @@ async def generate_masks_endpoint(
     resize: bool = True,
 ):
     """
-    Generate segmentation masks from PBR texture maps
+    Generate single segmentation mask from PBR texture maps
     """
     try:
         # Validate file types
@@ -189,32 +185,24 @@ async def generate_masks_endpoint(
         # Create PBR map
         pbr_tensor = create_pbr_map_from_files(ao_content, normal_content, basecolor_content)
         
-        # Generate masks
-        masks = generate_masks(pbr_tensor, resize=resize)
+        # Generate single mask
+        mask = generate_mask(pbr_tensor, resize=resize)
         
-        # Create temp dir (not auto-cleaned)
-        temp_dir = tempfile.mkdtemp()
-
-        mask_files = []
-            
-        # Save masks as PNG files
-        for i, mask in enumerate(masks):
-            mask_path = os.path.join(temp_dir, f"mask_{i}.png")
-            torchvision.io.write_png(mask.unsqueeze(0), mask_path)
-            mask_files.append(mask_path)
+        # Create temporary file for the mask
+        temp_file = tempfile.NamedTemporaryFile(suffix='.png', delete=False)
+        temp_file.close()  # Close the file handle so we can write to it
         
-        # Create ZIP file with all masks
-        zip_path = os.path.join(temp_dir, "masks.zip")
-        with zipfile.ZipFile(zip_path, 'w') as zipf:
-            for mask_file in mask_files:
-                zipf.write(mask_file, os.path.basename(mask_file))
+        # Save mask as PNG file
+        torchvision.io.write_png(mask.unsqueeze(0), temp_file.name)
         
-        background_tasks.add_task(remove_temp_dir, temp_dir)
-        # Return ZIP file
+        # Schedule cleanup
+        background_tasks.add_task(remove_temp_file, temp_file.name)
+        
+        # Return PNG file
         return FileResponse(
-            zip_path,
-            media_type="application/zip",
-            filename="generated_masks.zip"
+            temp_file.name,
+            media_type="image/png",
+            filename="generated_mask.png"
         )
             
     except HTTPException:
