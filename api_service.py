@@ -67,7 +67,7 @@ def load_model():
     download_model_from_gcs()
     MODEL = MultiMaskUNet(in_channels=IN_CHANNELS, out_channels=NUM_CLASSES).to(DEVICE)
     MODEL.load_state_dict(torch.load('./saved_model.pth', weights_only=True, map_location=torch.device(DEVICE)))
-    MODEL.eval()  # Set to evaluation mode
+    MODEL.eval()  
     print("Model loaded successfully!")
 
 def normalize_tensor(tensor):
@@ -110,7 +110,7 @@ def create_pbr_map_from_files(ao_file, normal_file, color_file):
         print(traceback.format_exc())
         raise
 
-def generate_mask(pbr_tensor, resize=True):  # Renamed from generate_masks to generate_mask
+def generate_mask(pbr_tensor, resize=True):
     """Generate single mask from PBR tensor"""
     if resize:
         original_size = pbr_tensor.shape[1:]
