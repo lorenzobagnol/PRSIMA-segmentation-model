@@ -2,14 +2,14 @@ steps:
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
   
-    args: ['build', '-f', 'cloud-dockerfile.dockerfile', '-t', 'europe-west12-docker.pkg.dev/architecture-degradi/ml-inference-repo/pbr-mask-api:latest', '.']
+    args: ['build', '-f', 'cloud-dockerfile.dockerfile', '-t', 'europe-west12-docker.pkg.dev/architecture-degradi/ml-inference-repo/distacco-service:latest', '.']
     
     env:
       - DOCKER_BUILDKIT=1
       
   # Push the container image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'europe-west12-docker.pkg.dev/architecture-degradi/ml-inference-repo/pbr-mask-api:latest']
+    args: ['push', 'europe-west12-docker.pkg.dev/architecture-degradi/ml-inference-repo/distacco-service:latest']
 
   # Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -17,9 +17,9 @@ steps:
     args:
       - 'run'
       - 'deploy'
-      - 'pbr-mask-api'
+      - 'distacco-service'
       - '--image'
-      - 'europe-west12-docker.pkg.dev/architecture-degradi/ml-inference-repo/pbr-mask-api:latest'
+      - 'europe-west12-docker.pkg.dev/architecture-degradi/ml-inference-repo/distacco-service:latest'
       - '--region'
       - 'europe-west12'
       - '--allow-unauthenticated'
