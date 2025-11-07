@@ -34,7 +34,7 @@ steps:
       - '--concurrency'
       - '2'
       - '--set-env-vars'
-      - 'MODEL_NAME=saved_model.pth,MASK_THRESHOLD=0.8'
+      - 'MODEL_NAME=unet-efficient-b3-distacco.pth,MASK_THRESHOLD=0.8'
 
 options:
   machineType: 'E2_HIGHCPU_8'
