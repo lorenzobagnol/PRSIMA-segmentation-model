@@ -21,7 +21,7 @@ class MultiMaskUNet(nn.Module):
         super().__init__()
         
         self.base_model = smp.Unet(
-            encoder_name="resnet50",
+            encoder_name="efficientnet-b3",
             encoder_weights="imagenet",
             in_channels=in_channels,
             classes=out_channels,  
@@ -41,6 +41,8 @@ DEVICE = None
 IN_CHANNELS = 7  
 NUM_CLASSES = 1 
 RESOLUTION = (1024, 1024)
+MODEL_NAME = os.getenv('MODEL_NAME')
+MASK_THRESHOLD = float(os.getenv('MASK_THRESHOLD'))
 
 def download_model_from_gcs():
     """Download model from Google Cloud Storage if not exists locally"""
@@ -50,7 +52,7 @@ def download_model_from_gcs():
             from google.cloud import storage
             client = storage.Client()
             bucket = client.bucket('architecture-degradi-models')
-            blob = bucket.blob('saved_model.pth')
+            blob = bucket.blob(MODEL_NAME)
             blob.download_to_filename('./saved_model.pth')
             print("Model downloaded successfully!")
         except Exception as e:
@@ -129,7 +131,7 @@ def generate_mask(pbr_tensor, resize=True):
     mask = output[0, :]  # Get the first (and only) channel
     if resize:
         mask = torchvision.transforms.Resize(original_size)(mask.unsqueeze(0)).squeeze(0)
-    mask = (mask > 0.8).to(torch.uint8) * 255  # Binarize the mask
+    mask = (mask > MASK_THRESHOLD).to(torch.uint8) * 255  # Binarize the mask
     
     return mask
 
