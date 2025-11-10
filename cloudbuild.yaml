@@ -2,14 +2,14 @@ steps:
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
   
-    args: ['build', '-f', 'cloud-dockerfile.dockerfile', '-t', 'europe-west12-docker.pkg.dev/architecture-degradi/ml-inference-repo/distacco-service:latest', '.']
+    args: ['build', '-f', 'cloud-dockerfile.dockerfile', '-t', 'europe-west12-docker.pkg.dev/architecture-degradi/ml-inference-repo/rigonfiamento-service:latest', '.']
     
     env:
       - DOCKER_BUILDKIT=1
       
   # Push the container image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'europe-west12-docker.pkg.dev/architecture-degradi/ml-inference-repo/distacco-service:latest']
+    args: ['push', 'europe-west12-docker.pkg.dev/architecture-degradi/ml-inference-repo/rigonfiamento-service:latest']
 
   # Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -17,9 +17,9 @@ steps:
     args:
       - 'run'
       - 'deploy'
-      - 'distacco-service'
+      - 'rigonfiamento-service'
       - '--image'
-      - 'europe-west12-docker.pkg.dev/architecture-degradi/ml-inference-repo/distacco-service:latest'
+      - 'europe-west12-docker.pkg.dev/architecture-degradi/ml-inference-repo/rigonfiamento-service:latest'
       - '--region'
       - 'europe-west12'
       - '--allow-unauthenticated'
@@ -34,7 +34,7 @@ steps:
       - '--concurrency'
       - '2'
       - '--set-env-vars'
-      - 'MODEL_NAME=unet-efficient-b3-distacco.pth,MASK_THRESHOLD=0.8'
+      - 'MODEL_NAME=unet-efficient-b3-rigonfiamento.pth,MASK_THRESHOLD=0.8'
 
 options:
   machineType: 'E2_HIGHCPU_8'
