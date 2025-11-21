@@ -131,7 +131,7 @@ def generate_mask(pbr_tensor):
     masks = [torchvision.transforms.Resize((2*RESOLUTION, 2*RESOLUTION))(out[0, :].unsqueeze(0)).squeeze(0)  for out in output]  
     
     # Reconstruct full-size mask
-    mask = reconstruct_from_windows(masks, positions)
+    mask = reconstruct_from_windows(masks, positions, original_shape = pbr_tensor.size()[1:])
     mask = (mask > MASK_THRESHOLD).to(torch.uint8) * 255  # Binarize the mask
     
     return mask
