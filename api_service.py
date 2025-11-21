@@ -15,6 +15,7 @@ import tempfile
 from typing import List
 import uvicorn
 import shutil
+from utils.utils import get_sliding_windows, reconstruct_from_windows
 
 class MultiMaskUNet(nn.Module):
     def __init__(self, in_channels=8, out_channels=1): 
@@ -40,7 +41,7 @@ MODEL = None
 DEVICE = None
 IN_CHANNELS = 7  
 NUM_CLASSES = 1 
-RESOLUTION = (1024, 1024)
+RESOLUTION = 1024
 MODEL_NAME = os.getenv('MODEL_NAME')
 MASK_THRESHOLD = float(os.getenv('MASK_THRESHOLD'))
 
@@ -112,25 +113,25 @@ def create_pbr_map_from_files(ao_file, normal_file, color_file):
         print(traceback.format_exc())
         raise
 
-def generate_mask(pbr_tensor, resize=True):
+def generate_mask(pbr_tensor):
     """Generate single mask from PBR tensor"""
-    if resize:
-        original_size = pbr_tensor.shape[1:]
-        pbr_tensor = torchvision.transforms.Resize(RESOLUTION)(pbr_tensor)
-       
-    # Move to device and add batch dimension
-    pbr_input = pbr_tensor.unsqueeze(0).to(DEVICE)
+
+    resizer = torchvision.transforms.Resize((RESOLUTION, RESOLUTION))
+    # Cut image into windows
+    windows, positions = get_sliding_windows(pbr_tensor, window_size=2*RESOLUTION)
     
+    # Move to device and add batch dimension
+    windows = [resizer(window).unsqueeze(0).to(DEVICE) for window in windows]
     # Generate prediction
     with torch.no_grad():
-        output = MODEL(pbr_input)
+        output = [MODEL(window) for window in windows]
+    output = [out.squeeze(0).cpu() for out in output]
     
-    output = output.squeeze(0).cpu()
+    # Delete batch dimension and resize to original window size
+    masks = [torchvision.transforms.Resize((2*RESOLUTION, 2*RESOLUTION))(out[0, :].unsqueeze(0)).squeeze(0)  for out in output]  
     
-    # Process single mask
-    mask = output[0, :]  # Get the first (and only) channel
-    if resize:
-        mask = torchvision.transforms.Resize(original_size)(mask.unsqueeze(0)).squeeze(0)
+    # Reconstruct full-size mask
+    mask = reconstruct_from_windows(masks, positions)
     mask = (mask > MASK_THRESHOLD).to(torch.uint8) * 255  # Binarize the mask
     
     return mask
@@ -177,7 +178,6 @@ async def generate_mask_endpoint(
     ao_image: UploadFile = File(..., description="AO (Ambient Occlusion) image"),
     normal_image: UploadFile = File(..., description="Normal map image"),
     basecolor_image: UploadFile = File(..., description="Base color image"),
-    resize: bool = True,
 ):
     """
     Generate single segmentation mask from PBR texture maps
@@ -198,7 +198,7 @@ async def generate_mask_endpoint(
         pbr_tensor = create_pbr_map_from_files(ao_content, normal_content, basecolor_content)
         
         # Generate single mask
-        mask = generate_mask(pbr_tensor, resize=resize)
+        mask = generate_mask(pbr_tensor)
         
         # Create temporary file for the mask
         temp_file = tempfile.NamedTemporaryFile(suffix='.png', delete=False)
