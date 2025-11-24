@@ -74,6 +74,6 @@ def reconstruct_from_windows(windows, positions, original_shape, window_size=102
     # Add each window to the reconstruction
     for window, (y, x) in zip(windows, positions):
         # Add window content
-        reconstructed[:, y:y+window_size, x:x+window_size] = window
+        reconstructed[y:y+window_size, x:x+window_size] = window
         
     return reconstructed

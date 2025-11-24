@@ -123,6 +123,7 @@ def generate_mask(pbr_tensor):
     """
 
     resizer = torchvision.transforms.Resize((RESOLUTION, RESOLUTION))
+
     # Cut image into windows
     windows, positions = get_sliding_windows(pbr_tensor, window_size=2*RESOLUTION)
     
@@ -137,7 +138,7 @@ def generate_mask(pbr_tensor):
     masks = [torchvision.transforms.Resize((2*RESOLUTION, 2*RESOLUTION))(out[0, :].unsqueeze(0)).squeeze(0)  for out in output]  
     
     # Reconstruct full-size mask
-    mask = reconstruct_from_windows(masks, positions, original_shape = pbr_tensor.size()[1:])
+    mask = reconstruct_from_windows(masks, positions, original_shape = pbr_tensor.size()[1:], window_size=2*RESOLUTION)
     mask = (mask > MASK_THRESHOLD).to(torch.uint8) * 255  # Binarize the mask
     
     return mask
