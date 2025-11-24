@@ -114,7 +114,13 @@ def create_pbr_map_from_files(ao_file, normal_file, color_file):
         raise
 
 def generate_mask(pbr_tensor):
-    """Generate single mask from PBR tensor"""
+    """Generate single mask from PBR tensor.
+    
+    Args:
+        pbr_tensor: torch.Tensor of shape (Channels, H, W)
+    Returns:
+        mask: torch.Tensor of shape (H, W)
+    """
 
     resizer = torchvision.transforms.Resize((RESOLUTION, RESOLUTION))
     # Cut image into windows

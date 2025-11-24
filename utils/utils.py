@@ -66,13 +66,12 @@ def reconstruct_from_windows(windows, positions, original_shape, window_size=102
     Returns:
         reconstructed: torch.Tensor of shape (channels, height, width)
     """
-    channels, height, width = original_shape
+    height, width = original_shape
     
-    # Initialize output tensor and weight matrix
+    # Initialize output tensor
     reconstructed = torch.zeros(original_shape, dtype=windows[0].dtype, device=windows[0].device)
-    weights = torch.zeros((height, width), dtype=torch.float32, device=windows[0].device)
     
-    # Add each window to the reconstruction with weights
+    # Add each window to the reconstruction
     for window, (y, x) in zip(windows, positions):
         # Add window content
         reconstructed[:, y:y+window_size, x:x+window_size] = window
