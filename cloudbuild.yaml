@@ -37,7 +37,7 @@ steps:
       - '--concurrency'
       - '2'
       - '--set-env-vars'
-      - 'MODEL_NAME=${_MODEL_ARCHITECTURE}-${_DEGRADO}.pth,MASK_THRESHOLD=0.8'
+      - 'MODEL_ARCHITECTURE=${_MODEL_ARCHITECTURE}, DEGRADO_NAME=${_DEGRADO}, MASK_THRESHOLD=0.8'
 
 options:
   machineType: 'E2_HIGHCPU_8'

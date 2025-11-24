@@ -17,12 +17,23 @@ import uvicorn
 import shutil
 from utils.utils import get_sliding_windows, reconstruct_from_windows
 
+
+# Global variables for model
+MODEL = None
+DEVICE = None
+IN_CHANNELS = 7  
+NUM_CLASSES = 1 
+RESOLUTION = 1024
+MODEL_ARCHITECTURE = os.getenv('MODEL_ARCHITECTURE')
+DEGRADO_NAME = os.getenv('DEGRADO_NAME')
+MASK_THRESHOLD = float(os.getenv('MASK_THRESHOLD'))
+
 class MultiMaskUNet(nn.Module):
     def __init__(self, in_channels=8, out_channels=1): 
         super().__init__()
         
         self.base_model = smp.Unet(
-            encoder_name="resnet50",
+            encoder_name=MODEL_ARCHITECTURE,
             encoder_weights="imagenet",
             in_channels=in_channels,
             classes=out_channels,  
@@ -36,15 +47,6 @@ class MultiMaskUNet(nn.Module):
         x = self.base_model(x)
         return self.final_activation(x)
 
-# Global variables for model
-MODEL = None
-DEVICE = None
-IN_CHANNELS = 7  
-NUM_CLASSES = 1 
-RESOLUTION = 1024
-MODEL_NAME = os.getenv('MODEL_NAME')
-MASK_THRESHOLD = float(os.getenv('MASK_THRESHOLD'))
-
 def download_model_from_gcs():
     """Download model from Google Cloud Storage if not exists locally"""
     if not os.path.exists('./saved_model.pth'):
@@ -53,7 +55,7 @@ def download_model_from_gcs():
             from google.cloud import storage
             client = storage.Client()
             bucket = client.bucket('architecture-degradi-models')
-            blob = bucket.blob(MODEL_NAME)
+            blob = bucket.blob(MODEL_ARCHITECTURE+"-"+DEGRADO_NAME+".pth")
             blob.download_to_filename('./saved_model.pth')
             print("Model downloaded successfully!")
         except Exception as e:
