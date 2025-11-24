@@ -22,7 +22,7 @@ class MultiMaskUNet(nn.Module):
         super().__init__()
         
         self.base_model = smp.Unet(
-            encoder_name="efficientnet-b3",
+            encoder_name="resnet50",
             encoder_weights="imagenet",
             in_channels=in_channels,
             classes=out_channels,  
