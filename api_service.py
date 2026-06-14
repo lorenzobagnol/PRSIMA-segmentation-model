@@ -26,7 +26,20 @@ NUM_CLASSES = 1
 RESOLUTION = 1024
 MODEL_ARCHITECTURE = os.getenv('MODEL_ARCHITECTURE')
 DEGRADO_NAME = os.getenv('DEGRADO_NAME')
-MASK_THRESHOLD = float(os.getenv('MASK_THRESHOLD'))
+MASK_THRESHOLD = float(os.getenv('MASK_THRESHOLD', '0.5'))
+
+
+def validate_model_config():
+    """Validate required model/environment configuration."""
+    missing = []
+    if not MODEL_ARCHITECTURE:
+        missing.append("MODEL_ARCHITECTURE")
+    if not DEGRADO_NAME:
+        missing.append("DEGRADO_NAME")
+    if missing:
+        raise RuntimeError(f"Missing required environment variables: {', '.join(missing)}")
+    if not (0.0 <= MASK_THRESHOLD <= 1.0):
+        raise RuntimeError("MASK_THRESHOLD must be between 0.0 and 1.0")
 
 class MultiMaskUNet(nn.Module):
     def __init__(self, in_channels=8, out_channels=1): 
@@ -65,6 +78,8 @@ def download_model_from_gcs():
 def load_model():
     """Load model once at startup"""
     global MODEL, DEVICE
+
+    validate_model_config()
     
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using device: {DEVICE}")
@@ -127,7 +142,8 @@ def generate_mask(pbr_tensor):
     resizer = torchvision.transforms.Resize((RESOLUTION, RESOLUTION))
 
     # Cut image into windows
-    windows, positions = get_sliding_windows(pbr_tensor, window_size=2*RESOLUTION)
+    windows, positions = get_sliding_windows(pbr_tensor, window_size=2 * RESOLUTION)
+    original_window_shapes = [window.shape[-2:] for window in windows]
     
     # Move to device and add batch dimension
     windows = [resizer(window).unsqueeze(0).to(DEVICE) for window in windows]
@@ -137,10 +153,18 @@ def generate_mask(pbr_tensor):
     output = [out.squeeze(0).cpu() for out in output]
     
     # Delete batch dimension and resize to original window size
-    masks = [torchvision.transforms.Resize((2*RESOLUTION, 2*RESOLUTION))(out[0, :].unsqueeze(0)).squeeze(0)  for out in output]  
+    masks = [
+        torchvision.transforms.Resize(window_shape)(out[0, :].unsqueeze(0)).squeeze(0)
+        for out, window_shape in zip(output, original_window_shapes)
+    ]
     
     # Reconstruct full-size mask
-    mask = reconstruct_from_windows(masks, positions, original_shape = pbr_tensor.size()[1:], window_size=2*RESOLUTION)
+    mask = reconstruct_from_windows(
+        masks,
+        positions,
+        original_shape=pbr_tensor.size()[1:],
+        window_size=2 * RESOLUTION,
+    )
     mask = (mask > MASK_THRESHOLD).to(torch.uint8) * 255  # Binarize the mask
     
     return mask
@@ -159,16 +183,22 @@ async def lifespan(app: FastAPI):
     load_model()
     yield
     # Clean up the ML model and release the resources
-    MODEL.clear()
+    global MODEL
+    MODEL = None
+    if DEVICE == "cuda":
+        torch.cuda.empty_cache()
 
 # Initialize FastAPI app
 app = FastAPI(title="PBR Mask Generation API", version="1.0.0", lifespan=lifespan)
 
 # Add CORS middleware - for accessing the API
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "*")
+ALLOW_CREDENTIALS = CORS_ORIGINS != "*"
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins. In production, specify your frontend domain
-    allow_credentials=True,
+    allow_origins=[origin.strip() for origin in CORS_ORIGINS.split(",") if origin.strip()] if CORS_ORIGINS else ["*"],
+    allow_credentials=ALLOW_CREDENTIALS,
     allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
     allow_headers=["*"],  # Allow all headers
 )

@@ -42,8 +42,8 @@ def get_sliding_windows(image, window_size=1024):
             x = int(round(j * stride_w))
             
             # Ensure we don't go out of bounds (due to rounding)
-            y = min(y, height - window_size)
-            x = min(x, width - window_size)
+            y = max(0, min(y, height - window_size))
+            x = max(0, min(x, width - window_size))
             
             # Extract window
             window = image[:, y:y+window_size, x:x+window_size]
@@ -73,7 +73,14 @@ def reconstruct_from_windows(windows, positions, original_shape, window_size=102
     
     # Add each window to the reconstruction
     for window, (y, x) in zip(windows, positions):
-        # Add window content
-        reconstructed[y:y+window_size, x:x+window_size] = window
+        window_h, window_w = window.shape[-2:]
+        y_start = max(0, y)
+        x_start = max(0, x)
+        y_end = min(y_start + window_h, height)
+        x_end = min(x_start + window_w, width)
+
+        # Crop window if needed to match destination slice
+        cropped = window[: y_end - y_start, : x_end - x_start]
+        reconstructed[y_start:y_end, x_start:x_end] = cropped
         
     return reconstructed
