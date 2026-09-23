@@ -1,0 +1,23 @@
+# Rigonfiamento: stessa scelta di canali di Distacco, ma con un backbone ViT (SegFormer)
+# invece della CNN encoder-decoder, per confrontare le due famiglie su questo degrado.
+# Da validare sperimentalmente: e' un template, non una scelta gia' confermata.
+degrado: Rigonfiamento
+
+data:
+  input_folder: ./images-and-masks/raw-data
+  output_folder: ./images-and-masks/torch-data/rigonfiamento
+  resolution: [1024, 1024]
+  pbr_maps: [BaseColor, AO]
+  use_only_notna: true
+
+model:
+  arch: segformer
+  encoder_name: mit_b0
+  encoder_weights: imagenet
+
+train:
+  batch_size: 4
+  lr: 0.0001
+  epochs: 50
+  device: cuda
+  output_model_path: ./models/rigonfiamento.pth

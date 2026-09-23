@@ -1,0 +1,21 @@
+# Cavillature: pattern geometrico ad alta frequenza, ben catturato dalla mappa Normal.
+degrado: Cavillature
+
+data:
+  input_folder: ./images-and-masks/raw-data
+  output_folder: ./images-and-masks/torch-data/cavillature
+  resolution: [1024, 1024]
+  pbr_maps: [AO, Normal, BaseColor]
+  use_only_notna: true
+
+model:
+  arch: unet
+  encoder_name: resnet50
+  encoder_weights: imagenet
+
+train:
+  batch_size: 4
+  lr: 0.0001
+  epochs: 50
+  device: cuda
+  output_model_path: ./models/cavillature.pth

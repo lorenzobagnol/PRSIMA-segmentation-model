@@ -1,8 +1,12 @@
 # Ignore the virtual environment
 .venv/
 
+# Ignore compiled bytecode
+__pycache__/
+
 # Ignore model weights
 saved_model.pth
+models/
 
 # Ignore the images and masks data
 images-and-masks/raw-data/*

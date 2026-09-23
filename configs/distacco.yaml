@@ -1,0 +1,22 @@
+# Distacco: fenomeno a bassa frequenza/basso contrasto, segnale piu' cromatico che
+# geometrico -> niente Normal, si usa il colore (+ AO come indizio di profondita' locale).
+degrado: Distacco
+
+data:
+  input_folder: ./images-and-masks/raw-data
+  output_folder: ./images-and-masks/torch-data/distacco
+  resolution: [1024, 1024]
+  pbr_maps: [BaseColor, AO]
+  use_only_notna: true
+
+model:
+  arch: unet
+  encoder_name: resnet50
+  encoder_weights: imagenet
+
+train:
+  batch_size: 4
+  lr: 0.0001
+  epochs: 50
+  device: cuda
+  output_model_path: ./models/distacco.pth
