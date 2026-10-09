@@ -31,3 +31,6 @@ images-and-masks/annotated/
 # Dati e log della prova locale dell'app di annotazione
 annotation_store_local/
 local_server.log
+
+# Backup locale del bucket prima della migrazione (annotation/migrate_bucket.py)
+bucket_backup/
