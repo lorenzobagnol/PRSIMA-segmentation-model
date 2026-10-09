@@ -243,7 +243,9 @@ function grayFromImage(img, W, H) {
 }
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const dataUrl = rel => "/data/" + rel.split("/").map(encodeURIComponent).join("/") + `?v=${Date.now()}`;
+// Masks and maps change, so they are always refetched; the working photo never does (bust = false), which
+// lets the browser reuse it when going back to an image.
+const dataUrl = (rel, bust = true) => "/data/" + rel.split("/").map(encodeURIComponent).join("/") + (bust ? `?v=${Date.now()}` : "");
 const imageInfo = name => st.images.find(i => i.name === name);
 const catInfo = name => st.categories.find(c => c.name === (name ?? curCategory));
 const catUrl = file => dataUrl(`${imageInfo(cur.image).dir}/${file}`);
@@ -313,37 +315,37 @@ $("galleryGrid").addEventListener("click", e => {
 
 // ---------- loading an image ----------
 
-// Clicking Succ./Prec. (or the arrow keys) repeatedly before a load finishes used to start a new
-// overlapping load each time; serializing navigation avoids that: a click while one is already
-// loading just updates where to go once it's done, so at most two loads ever run.
-let navInFlight = false, navPending = null;
+// Navigation: the latest click always wins. A load that is still running when another image is
+// requested is simply discarded when it finishes (loadToken), instead of making the new click wait
+// behind it -- waiting made fast clicking feel stuck on the current image whenever a load was slow.
+let loadingImage = null;
 
 async function openImage(image) {
-  if (navInFlight) { navPending = image; return; }
-  navInFlight = true;
+  if (image === loadingImage || (!loadingImage && cur?.image === image)) return;
+  loadingImage = image;
   try {
     await openImageNow(image);
   } finally {
-    navInFlight = false;
-    if (navPending !== null) {
-      const next = navPending;
-      navPending = null;
-      if (next !== cur?.image) openImage(next);
-    }
+    if (loadingImage === image) loadingImage = null;
   }
+}
+
+function markCurrentThumb(image) {
+  document.querySelectorAll("#galleryGrid .thumb").forEach(el => el.classList.toggle("current", el.dataset.name === image));
 }
 
 async function openImageNow(image) {
   if (dirty && !confirm("Ci sono modifiche non salvate. Continuare senza salvare?")) return;
   const token = ++loadToken, info = imageInfo(image);
   if (!info) return;
+  markCurrentThumb(image);
   setStatus(`Carico <b>${esc(info.label)}</b>…`);
   let img;
   try {
     try {
-      img = await loadImage(dataUrl(info.work));
+      img = await loadImage(dataUrl(info.work, false));
     } catch (e) {
-      img = await loadImage(dataUrl(info.work));  // un retry: bucket appena scritto, o sessione da rinnovare
+      img = await loadImage(dataUrl(info.work, false));  // un retry: bucket appena scritto, o sessione da rinnovare
     }
   } catch (e) {
     note(`Errore nel caricare <b>${esc(info.label)}</b>: ${esc(e.message)}. Riprova o ricarica la pagina.`);
@@ -357,6 +359,7 @@ async function openImageNow(image) {
   photoC.getContext("2d").drawImage(img, 0, 0);
   if (info.category !== curCategory) { curCategory = info.category; $("category").value = curCategory; }
   await openCategoryData(token);
+  if (token !== loadToken) return;
   if (!sameImage) fit();
   refreshGallery();
   // Con la U-Net non serve preparare SAM 3 (25-45s di CPU per nulla): lo si fa solo per le categorie
@@ -373,17 +376,19 @@ function warmSam() {
 }
 
 async function openCategoryData(token = loadToken) {
-  const info = imageInfo(cur.image);
-  cur.mask.fill(0); cur.probs = {}; cur.computed = !!info.computed; cur.modelComputed = !!info.model_computed;
+  const c = cur, info = imageInfo(c.image);
+  c.mask.fill(0); c.probs = {}; c.computed = !!info.computed; c.modelComputed = !!info.model_computed;
   refreshMapChips();
   if (info.computed || info.reviewed) {
     try {
-      const m = grayFromImage(await loadImage(dataUrl(info.mask)), cur.W, cur.H);
-      for (let i = 0; i < m.length; i++) cur.mask[i] = m[i] > 127 ? 1 : 0;
+      const m = grayFromImage(await loadImage(dataUrl(info.mask)), c.W, c.H);
+      if (token !== loadToken) return;
+      for (let i = 0; i < m.length; i++) c.mask[i] = m[i] > 127 ? 1 : 0;
     } catch (e) { /* no mask yet */ }
   }
   if (token !== loadToken) return;
   await loadCurrentProb();
+  if (token !== loadToken) return;
   showEmpty();
   drawHeat(); renderOverlay();
   note("");
@@ -433,8 +438,9 @@ function refreshMapChips() {
 }
 
 async function ensureProb(file) {
-  if (!cur.probs[file]) cur.probs[file] = grayFromImage(await loadImage(catUrl(file)), cur.W, cur.H);
-  return cur.probs[file];
+  const c = cur;  // the image may change while the map downloads: write into the one it was requested for
+  if (!c.probs[file]) c.probs[file] = grayFromImage(await loadImage(catUrl(file)), c.W, c.H);
+  return c.probs[file];
 }
 async function loadCurrentProb() {
   const file = currentMapFile();
