@@ -232,6 +232,23 @@ def index():
 	return FileResponse(os.path.join(os.path.dirname(__file__), "static", "index.html"), headers={"Cache-Control": "no-cache"})
 
 
+THUMB_SIDE = 256
+
+
+@app.get("/api/thumb/{image_id}")
+def thumb(image_id: str):
+	"""Small square-ish JPEG for the gallery, built once from the working copy and cached next to it
+	(the working copy can be ~1MB; a gallery of 100 of them made the sidebar slow and janky)."""
+	get_meta(image_id)
+	file = path("cache", image_id, "thumb.jpg")
+	if not os.path.isfile(file):
+		img = work_image(image_id)
+		img.thumbnail((THUMB_SIDE, THUMB_SIDE), Image.LANCZOS)
+		os.makedirs(os.path.dirname(file), exist_ok=True)
+		img.save(file, quality=80)
+	return FileResponse(file, media_type="image/jpeg", headers={"Cache-Control": "private, max-age=86400"})
+
+
 @app.get("/api/state")
 def state():
 	images = sorted(INDEX.values(), key=lambda m: (m["added"], m["source"]))

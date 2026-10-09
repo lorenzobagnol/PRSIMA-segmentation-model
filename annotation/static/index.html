@@ -67,9 +67,9 @@
   /* --- gallery --- */
   #gallery .galleryHead { padding:10px; border-bottom:1px solid var(--line); display:flex; flex-direction:column; gap:6px; }
   #gallery .galleryCount { color:var(--muted); font-size:11px; }
-  #galleryGrid { flex:1; overflow-y:auto; display:grid; grid-template-columns:1fr 1fr; gap:6px; padding:8px; align-content:start; }
-  .thumb { position:relative; border-radius:6px; overflow:hidden; cursor:pointer; border:2px solid transparent; background:#0a0a0a; aspect-ratio:1; }
-  .thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+  #galleryGrid { flex:1; overflow-y:auto; display:grid; grid-template-columns:1fr 1fr; grid-auto-rows:min-content; gap:6px; padding:8px; align-content:start; }
+  .thumb { position:relative; border-radius:6px; overflow:hidden; cursor:pointer; border:2px solid transparent; background:#0a0a0a; }
+  .thumb img { width:100%; aspect-ratio:1; object-fit:cover; display:block; background:#161616; }
   .thumb.current { border-color:var(--accent); }
   .thumb .badge { position:absolute; top:3px; right:3px; font-size:10px; line-height:1; padding:2px 4px; border-radius:4px; background:#000a; }
   .thumb .badge.ok { color:var(--ok); } .thumb .badge.test { color:var(--warn); }
@@ -299,7 +299,7 @@ function refreshGallery() {
   $("galleryCount").textContent = `${list.length} immagini · salvate ${list.filter(i => i.reviewed).length} · test ${list.filter(i => i.test).length}`;
   $("galleryGrid").innerHTML = visible.map(i => `
     <div class="thumb${cur?.image === i.name ? " current" : ""}" data-name="${esc(i.name)}" title="${esc(i.label)}">
-      <img src="${dataUrl(i.work)}" loading="lazy">
+      <img src="/api/thumb/${esc(i.name)}" loading="lazy" decoding="async">
       ${i.reviewed ? '<span class="badge ok">✓</span>' : ""}
       ${i.test ? '<span class="badge test">test</span>' : ""}
       <span class="name">${esc(i.label)}</span>
@@ -360,7 +360,17 @@ async function openImageNow(image) {
   await openCategoryData(token);
   if (!sameImage) fit();
   refreshGallery();
-  if (st.has_sam3) busy("SAM prepara l'immagine…", () => api("/api/warm", { image })).catch(() => {});
+  // Con la U-Net non serve preparare SAM 3 (25-45s di CPU per nulla): lo si fa solo per le categorie
+  // senza modello, o quando l'utente passa a un'azione SAM.
+  if (!categoryHasModel(info.category)) warmSam();
+}
+
+const categoryHasModel = name => !!st.categories.find(c => c.name === name)?.has_model;
+let warmedImage = null;
+function warmSam() {
+  if (!st.has_sam3 || !cur || warmedImage === cur.image) return;
+  const image = warmedImage = cur.image;
+  busy("SAM prepara l'immagine…", () => api("/api/warm", { image })).catch(() => { if (warmedImage === image) warmedImage = null; });
 }
 
 async function openCategoryData(token = loadToken) {
@@ -706,6 +716,7 @@ function refreshModeVisibility() {
   const m = mode();
 $("samSettings").style.display = (m === "samAdd" || m === "samRemove") ? "" : "none";
   $("brushSettings").style.display = (m === "brushAdd" || m === "brushRemove") ? "" : "none";
+  if (m === "samAdd" || m === "samRemove") warmSam();
 }
 document.querySelectorAll("input[name=mode]").forEach(r => r.addEventListener("change", refreshModeVisibility));
 let drag = null;
