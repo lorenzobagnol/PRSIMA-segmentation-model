@@ -411,14 +411,12 @@ class ImageRequest(BaseModel):
 @app.post("/api/delete-image")
 def delete_image(req: ImageRequest):
 	meta = get_meta(req.image)
-	mf = mask_file(req.image, meta["category"])
-	if os.path.isfile(mf):
-		os.remove(mf)
-	shutil.rmtree(path("cache", req.image), ignore_errors=True)
-	os.remove(path("images", req.image + meta["ext"]))
-	os.remove(path("meta", f"{req.image}.json"))
-	with INDEX_LOCK:
+	with INDEX_LOCK:  # first, so a prediction still running for this image notices and discards its results
 		INDEX.pop(req.image, None)
+	for f in (mask_file(req.image, meta["category"]), path("images", req.image + meta["ext"]), path("meta", f"{req.image}.json")):
+		if os.path.isfile(f):  # tolerant: finishes the job even if an earlier delete was interrupted
+			os.remove(f)
+	shutil.rmtree(path("cache", req.image), ignore_errors=True)
 	return {"ok": True}
 
 
@@ -456,6 +454,14 @@ def warm(req: ImageRequest):
 	require_sam()
 	SAM.warm(req.image, work_image(req.image))
 	return {"ok": True}
+
+
+def gone_while_computing(image_id: str) -> None:
+	"""The image may have been deleted while a slow prediction was running; writing its results back
+	would resurrect an orphan (metadata and maps without the original, impossible to open or delete)."""
+	if image_id not in INDEX:
+		shutil.rmtree(path("cache", image_id), ignore_errors=True)
+		raise HTTPException(404, "L'immagine è stata eliminata mentre calcolavo.")
 
 
 class ComputeRequest(BaseModel):
@@ -499,6 +505,7 @@ def compute(req: ComputeRequest):
 		if engine is None:
 			detected = float(detected_total.mean())
 
+	gone_while_computing(meta["id"])
 	save_meta(meta)
 	return {"state": image_state(meta), "detected": detected}
 
