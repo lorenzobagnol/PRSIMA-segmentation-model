@@ -677,7 +677,7 @@ async function uploadImages() {
       }
     }
     if (out.added.length) openImage(out.added[0]);
-    const dup = out.duplicates.length ? `<br>${out.duplicates.length} già presenti (stesso file).` : "";
+    const dup = out.duplicates.length ? `<br>${out.duplicates.length} già presenti in questa categoria (stesso file).` : "";
     note(`Caricate ${out.added.length} immagini in «${esc(curCategory)}».${dup}${out.errors.length ? "<br>" + out.errors.map(esc).join("<br>") : ""}`);
   } catch (e) { note(`Errore nel caricamento: ${esc(e.message)}`); }
 }

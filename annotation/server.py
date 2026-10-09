@@ -161,11 +161,17 @@ def load_index() -> None:
 				INDEX[meta["id"]] = meta
 
 
+def original_file(meta: dict) -> str:
+	"""The stored original. One photo can be annotated for several degradi (one entry per category,
+	all sharing this file), so the file is named after the content hash ("file"), not the entry id."""
+	return path("images", meta.get("file", meta["id"]) + meta["ext"])
+
+
 def work_image(image_id: str) -> Image.Image:
 	"""The working copy every mask and map is aligned to; recreated from the original if missing."""
 	meta, work = get_meta(image_id), path("cache", image_id, "work.jpg")
 	if not os.path.isfile(work):
-		original = ImageOps.exif_transpose(Image.open(path("images", image_id + meta["ext"]))).convert("RGB")
+		original = ImageOps.exif_transpose(Image.open(original_file(meta))).convert("RGB")
 		if max(original.size) > WORK_MAX_SIDE:
 			original.thumbnail((WORK_MAX_SIDE, WORK_MAX_SIDE), Image.LANCZOS)
 		os.makedirs(os.path.dirname(work), exist_ok=True)
@@ -204,20 +210,28 @@ def require_sam():
 
 
 def ingest(data: bytes, filename: str, cat: str) -> tuple[str, bool]:
-	"""Stores one uploaded file tagged with its one category; returns (image id, already present)."""
+	"""Stores one uploaded file tagged with its category; returns (entry id, already present).
+	The same photo may be added to several categories (a wall can have both graffiti and peeling
+	plaster): each category gets its own entry, with its own masks, sharing one stored original."""
 	category(cat)
-	image_id = hashlib.sha256(data).hexdigest()[:12]
-	if image_id in INDEX:
-		return image_id, True  # already ingested (possibly for a different category: left alone)
+	digest = hashlib.sha256(data).hexdigest()[:12]
+	same = [m for m in INDEX.values() if m.get("file", m["id"]) == digest]
+	for m in same:
+		if m["category"] == cat:
+			return m["id"], True
+	image_id = digest if digest not in INDEX else f"{digest}_{slugify(cat)}"
 	pil = Image.open(io.BytesIO(data))
 	pil.load()
-	ext = os.path.splitext(filename)[1].lower()
-	if ext not in IMAGE_EXTS:
-		ext = "." + (pil.format or "jpg").lower().replace("jpeg", "jpg")
-	with open(path("images", image_id + ext), "wb") as f:
-		f.write(data)
+	if same:
+		ext = same[0]["ext"]
+	else:
+		ext = os.path.splitext(filename)[1].lower()
+		if ext not in IMAGE_EXTS:
+			ext = "." + (pil.format or "jpg").lower().replace("jpeg", "jpg")
+		with open(path("images", digest + ext), "wb") as f:
+			f.write(data)
 	size = ImageOps.exif_transpose(pil).size
-	meta = {"id": image_id, "source": filename, "ext": ext, "category": cat, "test": False, "size": list(size),
+	meta = {"id": image_id, "file": digest, "source": filename, "ext": ext, "category": cat, "test": False, "size": list(size),
 		"added": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
 		"computed": False, "model_computed": False, "reviewed": False, "prompts": {}}
 	save_meta(meta)
@@ -413,8 +427,9 @@ def delete_image(req: ImageRequest):
 	meta = get_meta(req.image)
 	with INDEX_LOCK:  # first, so a prediction still running for this image notices and discards its results
 		INDEX.pop(req.image, None)
-	for f in (mask_file(req.image, meta["category"]), path("images", req.image + meta["ext"]), path("meta", f"{req.image}.json")):
-		if os.path.isfile(f):  # tolerant: finishes the job even if an earlier delete was interrupted
+	shared = any(m.get("file", m["id"]) == meta.get("file", meta["id"]) for m in INDEX.values())  # another category still uses the original
+	for f in (mask_file(req.image, meta["category"]), None if shared else original_file(meta), path("meta", f"{req.image}.json")):
+		if f and os.path.isfile(f):  # tolerant: finishes the job even if an earlier delete was interrupted
 			os.remove(f)
 	shutil.rmtree(path("cache", req.image), ignore_errors=True)
 	return {"ok": True}
