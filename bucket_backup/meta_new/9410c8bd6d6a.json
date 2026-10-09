@@ -1,0 +1,29 @@
+{
+ "id": "9410c8bd6d6a",
+ "source": "IMG_9190.jpeg",
+ "ext": ".jpeg",
+ "category": "Distacco",
+ "test": false,
+ "size": [
+  3024,
+  4032
+ ],
+ "added": "2026-10-02T16:19:15+00:00",
+ "computed": true,
+ "model_computed": false,
+ "reviewed": true,
+ "prompts": {
+  "peeling_plaster": {
+   "text": "peeling plaster",
+   "semantic": true
+  },
+  "missing_plaster": {
+   "text": "missing plaster",
+   "semantic": true
+  },
+  "flaking_paint": {
+   "text": "flaking paint",
+   "semantic": true
+  }
+ }
+}

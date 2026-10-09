@@ -1,0 +1,31 @@
+{
+ "id": "716a49ef851a",
+ "source": "IMG_9236.jpeg",
+ "ext": ".jpeg",
+ "test": false,
+ "size": [
+  3024,
+  4032
+ ],
+ "added": "2026-10-02T16:20:04+00:00",
+ "categories": {
+  "Distacco": {
+   "reviewed": true,
+   "computed": true,
+   "prompts": {
+    "peeling_plaster": {
+     "text": "peeling plaster",
+     "semantic": true
+    },
+    "missing_plaster": {
+     "text": "missing plaster",
+     "semantic": true
+    },
+    "flaking_paint": {
+     "text": "flaking paint",
+     "semantic": true
+    }
+   }
+  }
+ }
+}

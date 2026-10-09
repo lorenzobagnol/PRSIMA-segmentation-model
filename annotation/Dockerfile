@@ -16,8 +16,8 @@ ENV HF_HOME=/models/hf HF_HUB_OFFLINE=1
 COPY server.py sam3_engine.py unet_engine.py ./
 COPY static/ ./static/
 
-# Cloud Run sets PORT; the bucket is mounted at /data. UNET_WEIGHTS points at a checkpoint
-# uploaded separately to the bucket (gs://<bucket>/models/<category>.pth) -- not baked into the
-# image, since it changes every time the model is retrained and is small/fast to load.
-ENV HOST=0.0.0.0 ANNOTATION_DATA=/data SAM3_DEVICE=cpu UNET_WEIGHTS=/data/models/distacco.pth
+# Cloud Run sets PORT; the bucket is mounted at /data. Per-category U-Net checkpoints live in the
+# bucket (models/<Category>.pth, referenced by categories.json), not in the image: they change
+# every time a model is retrained and are small/fast to load.
+ENV HOST=0.0.0.0 ANNOTATION_DATA=/data SAM3_DEVICE=cpu
 CMD ["python", "server.py"]

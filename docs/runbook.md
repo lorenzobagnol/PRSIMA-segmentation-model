@@ -9,7 +9,7 @@ generale.
 - Bucket dati: `gs://architecture-degradi-annotation` (montato su `/data` nel container Cloud Run).
 - Servizio Cloud Run: `annotation` — `https://annotation-429808723098.europe-west1.run.app`.
 - Repository immagini Docker: `europe-west1-docker.pkg.dev/architecture-degradi/annotation/annotation`
-  (tag `v1`...`v8` finora, incrementare a ogni build).
+  (tag `v1`...`v9` finora, incrementare a ogni build).
 - Service account app: `annotation-app@architecture-degradi.iam.gserviceaccount.com`.
 - Secret Manager: `hf-token` (token Hugging Face con accesso a `facebook/sam3`, usato da
   `annotation/cloudbuild.yaml` per scaricare i pesi durante la build).
@@ -45,7 +45,7 @@ offline, senza scaricare i pesi) che fa fallire la build *prima* del push se man
 critica — non saltarlo.
 
 **Aggiornare solo il modello U-Net** (senza rebuild): carica il nuovo checkpoint su
-`gs://architecture-degradi-annotation/models/distacco.pth`, poi **forza un riavvio
+`gs://architecture-degradi-annotation/models/Distacco.pth` (un file per categoria, `models/<Categoria>.pth`), poi **forza un riavvio
 dell'istanza** (il container tiene il modello in RAM, non lo rilegge da solo):
 
 ```powershell
@@ -153,3 +153,13 @@ un confronto pulito tra una ricetta e l'altra.
   caricamenti immagine proprio per questo, ma se serve zero attesa durante una sessione di
   annotazione intensiva si può impostare `--min-instances=1` (costa di più quando acceso).
 - Il bucket **non ha versioning**: cancellare o sovrascrivere un file lì è definitivo.
+
+## Formato dati nel bucket (dal 2026-10-09)
+
+`meta/<id>.json` piatto (`category`, `reviewed`, `computed`, `model_computed`, `prompts`, `test`),
+`cache/<id>/` senza sottocartella di categoria, `categories.json` con `model` per categoria.
+La migrazione dal vecchio formato è in `annotation/migrate_bucket.py` (già eseguita; salva i vecchi
+file in `--backup`). Nota: il classificatore dei permessi di Claude Code blocca scritture massive
+sul bucket di produzione, quindi gli script di migrazione vanno lanciati dall'utente o autorizzati
+esplicitamente. Le copie vecchie in `cache/<id>/Distacco/` e `models/distacco.pth` sono ancora lì
+(si possono cancellare quando si è sicuri).

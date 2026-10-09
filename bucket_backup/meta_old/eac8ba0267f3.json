@@ -1,0 +1,19 @@
+{
+ "id": "eac8ba0267f3",
+ "source": "IMG_9320.jpeg",
+ "ext": ".jpeg",
+ "test": false,
+ "size": [
+  5712,
+  4284
+ ],
+ "added": "2026-10-06T16:43:33+00:00",
+ "categories": {
+  "Distacco": {
+   "reviewed": false,
+   "computed": false,
+   "model_computed": true,
+   "prompts": {}
+  }
+ }
+}

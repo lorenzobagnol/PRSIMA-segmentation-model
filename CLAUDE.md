@@ -42,7 +42,7 @@ giro di lavoro. Non toccarli senza che sia chiesto esplicitamente.
 
 ## Stato attuale (vedi training-history.md per la cronologia completa)
 
-- **Modello in produzione nel bucket** (`gs://architecture-degradi-annotation/models/distacco.pth`):
+- **Modello in produzione nel bucket** (`gs://architecture-degradi-annotation/models/Distacco.pth`):
   quello del giro "76 immagini" (train+test uniti, 150 epoche, nessuna metrica di validazione
   affidabile — vedi sotto). **Non ancora validato con un vero test set.**
 - **Ultimo checkpoint validato con test set reale**: IoU 0.8366 (giro a 68 train + 8 test),
@@ -65,15 +65,19 @@ giro di lavoro. Non toccarli senza che sia chiesto esplicitamente.
 
 ## Architettura (dettagli completi in docs/runbook.md)
 
-- **Strumento di annotazione**: `annotation/server.py` (FastAPI) + `annotation/static/index.html`
+- **Strumento di annotazione** (multi-degrado dal 2026-10-09, deploy `v9`): ogni immagine appartiene
+  a UN solo degrado; ogni categoria ha fino a 3 prompt SAM 3 fissati alla creazione e un modello
+  U-Net opzionale (`models/<Categoria>.pth`, dichiarato in `categories.json`; si aggiorna solo da
+  noi, non dall'utente). Categorie attuali: Distacco (con U-Net), AttiVandalici (solo SAM 3).
+  `annotation/server.py` (FastAPI) + `annotation/static/index.html`
   (pagina singola, canvas). Motori: `annotation/sam3_engine.py` (SAM 3) e
   `annotation/unet_engine.py` (U-Net allenata). Deployato su Cloud Run, URL
   `https://annotation-429808723098.europe-west1.run.app`, protetto da IAP (login Google, solo
   `lorenzobgl@gmail.com` e `danielepanerai@gmail.com` autorizzati).
 - **Dati**: tutto vive in un bucket GCS (`gs://architecture-degradi-annotation`), montato come
   volume nel container Cloud Run. Struttura: `images/`, `meta/`, `masks/<Categoria>/`, `cache/`
-  (mappe SAM 3 + U-Net), `exports/` (zip per il training), `models/distacco.pth` (checkpoint
-  servito dall'app). Non c'è versioning sul bucket (scelta esplicita di Lorenzo): una
+  (mappe SAM 3 + U-Net), `exports/` (zip per il training), `models/<Categoria>.pth` (un checkpoint
+  per categoria servito dall'app; `cache/<id>/` è piatto, senza sottocartella di categoria). Non c'è versioning sul bucket (scelta esplicita di Lorenzo): una
   sovrascrittura è persa per sempre.
 - **Pipeline di training**: script alla radice della repo (`train.py`, `config.py`, `models.py`,
   `pbr_maps.py`, `create_dataset.py`, `compare_predictions.py`, `compare_checkpoints.py`,

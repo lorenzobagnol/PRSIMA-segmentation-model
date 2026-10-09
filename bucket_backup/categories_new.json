@@ -1,0 +1,22 @@
+[
+ {
+  "name": "Distacco",
+  "kind": "degrado",
+  "prompts": [
+   "peeling plaster",
+   "missing plaster",
+   "flaking paint"
+  ],
+  "model": "models/Distacco.pth"
+ },
+ {
+  "name": "AttiVandalici",
+  "kind": "degrado",
+  "prompts": [
+   "graffiti",
+   "spray paint",
+   "vandalism mark"
+  ],
+  "model": null
+ }
+]
