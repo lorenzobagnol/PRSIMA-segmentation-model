@@ -81,6 +81,16 @@ giro di lavoro. Non toccarli senza che sia chiesto esplicitamente.
   persistente**: a ogni nuova sessione di training serve chiedere a Lorenzo le coordinate SSH di
   un server (nuovo o riacceso) e rifare il setup da zero.
 
+## Branch git (convenzione)
+
+- **`feature/dataset-annotation`**: tutto ciò che riguarda la creazione del dataset (app di
+  annotazione in `annotation/`, seed locale, docs relative, backend/deploy GCP).
+- **`feature/training`** (da creare a partire da `feature/dataset-annotation` quando parte il
+  prossimo giro): training dei modelli (`train.py`, `config.py`, `configs/`, script di confronto,
+  log). Non mescolare i due filoni nello stesso branch.
+- Prima di modificare codice, controlla il branch corrente (`git branch --show-current`) e
+  cambia se serve. Non fare push senza richiesta esplicita.
+
 ## Convenzioni e trappole note (leggi prima di ripetere un errore già fatto)
 
 Vedi [docs/runbook.md](docs/runbook.md) per la lista completa (percorsi Windows/Git Bash, auth
