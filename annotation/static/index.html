@@ -659,32 +659,63 @@ async function createCategory() {
   } catch (e) { alert("Errore: " + e.message); }
 }
 
+// Un solo caricamento alla volta: il pulsante resta spento finché i file non sono sul server (un
+// secondo clic caricava tutto due volte). Le previsioni partono dopo, in una coda in background che
+// non blocca né il pulsante né la navigazione.
+let uploading = false;
+
 async function uploadImages() {
+  if (uploading) return;
   const files = $("files").files;
   if (!files.length) { note("Scegli uno o più file."); return; }
   if (!curCategory) { note("Crea prima una categoria."); return; }
+  uploading = true; $("uploadBtn").disabled = true;
+  const category = curCategory;
+  let out;
   try {
-    const out = st.direct_upload ? await uploadDirect([...files], curCategory) : await busy(`Carico ${files.length} immagini…`, async () => {
+    out = st.direct_upload ? await uploadDirect([...files], category) : await busy(`Carico ${files.length} immagini…`, async () => {
       const form = new FormData();
-      form.append("category_name", curCategory);
+      form.append("category_name", category);
       for (const f of files) form.append("files", f);
       const res = await fetch("/api/upload", { method: "POST", body: form });
       const j = await res.json(); if (!res.ok) throw new Error(j.detail || res.statusText); return j;
     });
     await reloadState(); $("files").value = "";
-    const engine = catInfo()?.has_model ? { with_sam3: false } : { with_sam3: true };
-    if (st.has_sam3 || catInfo()?.has_model) {
-      for (const [k, name] of out.added.entries()) {
-        try {
-          const r = await busy(`Previsione ${k + 1}/${out.added.length}: ${imageInfo(name)?.label || name}`, () => api("/api/compute", { image: name, ...engine }));
-          updateImageState(r.state);
-        } catch (e) { note(`Errore su ${esc(name)}: ${esc(e.message)}`); }
-      }
+  } catch (e) {
+    note(`Errore nel caricamento: ${esc(e.message)}`); return;
+  } finally {
+    uploading = false; $("uploadBtn").disabled = false;
+  }
+  queuePredictions(out.added);
+  if (out.added.length) openImage(out.added[0]);
+  const dup = out.duplicates.length ? `<br>${out.duplicates.length} già presenti in questa categoria (stesso file).` : "";
+  const wait = out.added.length && (st.has_sam3 || catInfo(category)?.has_model) ? "<br>Le previsioni vengono calcolate in background." : "";
+  note(`Caricate ${out.added.length} immagini in «${esc(category)}».${dup}${wait}${out.errors.length ? "<br>" + out.errors.map(esc).join("<br>") : ""}`);
+}
+
+// Previsioni in coda, una alla volta (SAM 3 impiega 25-45s per immagine): U-Net per le categorie che
+// ce l'hanno, SAM 3 per le altre. Nuovi caricamenti si accodano a quelli ancora in corso.
+const predictQueue = [];
+let predicting = false;
+
+async function queuePredictions(names) {
+  predictQueue.push(...names);
+  if (predicting) return;
+  predicting = true;
+  let done = 0;
+  try {
+    while (predictQueue.length) {
+      const name = predictQueue.shift(), info = imageInfo(name);
+      if (!info) continue;  // eliminata nel frattempo
+      const hasModel = !!catInfo(info.category)?.has_model;
+      if (!hasModel && !st.has_sam3) continue;
+      try {
+        const r = await busy(`Previsione ${++done}/${done + predictQueue.length}: ${info.label}`, () => api("/api/compute", { image: name, with_sam3: !hasModel }));
+        updateImageState(r.state);
+        if (cur?.image === name && !dirty) await openCategoryData();  // la vedi subito se è l'immagine aperta
+      } catch (e) { if (imageInfo(name)) note(`Errore su ${esc(info.label)}: ${esc(e.message)}`); }
     }
-    if (out.added.length) openImage(out.added[0]);
-    const dup = out.duplicates.length ? `<br>${out.duplicates.length} già presenti in questa categoria (stesso file).` : "";
-    note(`Caricate ${out.added.length} immagini in «${esc(curCategory)}».${dup}${out.errors.length ? "<br>" + out.errors.map(esc).join("<br>") : ""}`);
-  } catch (e) { note(`Errore nel caricamento: ${esc(e.message)}`); }
+  } finally { predicting = false; }
 }
 
 async function uploadDirect(files, categoryName) {
