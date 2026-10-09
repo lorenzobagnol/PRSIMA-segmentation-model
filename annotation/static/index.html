@@ -156,6 +156,7 @@
       <div class="group">
         <h2>4. Previsione</h2>
         <button id="computeSam3" style="width:100%">Calcola anche SAM 3 (aiuto extra)</button>
+        <button id="computeMissing" style="width:100%; margin-top:6px; display:none"></button>
       </div>
 
       <div class="group">
@@ -305,6 +306,7 @@ function refreshGallery() {
       ${i.test ? '<span class="badge test">test</span>' : ""}
       <span class="name">${esc(i.label)}</span>
     </div>`).join("") || `<div class="hint" style="padding:10px">Nessuna immagine qui.</div>`;
+  refreshMissingButton();
   $("progress").textContent = `${curCategory || "—"}: ${list.length} immagini · salvate ${list.filter(i => i.reviewed).length}`;
 }
 
@@ -693,13 +695,27 @@ async function uploadImages() {
   note(`Caricate ${out.added.length} immagini in «${esc(category)}».${dup}${wait}${out.errors.length ? "<br>" + out.errors.map(esc).join("<br>") : ""}`);
 }
 
+// Immagini della categoria senza nessuna previsione (es. se la pagina è stata ricaricata mentre la
+// coda era a metà): un clic le rimette in coda.
+function missingPredictions() {
+  const canSam = st.has_sam3, hasModel = !!catInfo()?.has_model;
+  if (!hasModel && !canSam) return [];
+  return imagesInCategory().filter(i => !i.computed && !i.model_computed && !i.reviewed && !predictQueue.includes(i.name));
+}
+
+function refreshMissingButton() {
+  const n = missingPredictions().length, b = $("computeMissing");
+  b.style.display = n ? "" : "none";
+  b.textContent = `Calcola le previsioni mancanti (${n})`;
+}
+
 // Previsioni in coda, una alla volta (SAM 3 impiega 25-45s per immagine): U-Net per le categorie che
 // ce l'hanno, SAM 3 per le altre. Nuovi caricamenti si accodano a quelli ancora in corso.
 const predictQueue = [];
 let predicting = false;
 
 async function queuePredictions(names) {
-  predictQueue.push(...names);
+  predictQueue.push(...names.filter(n => !predictQueue.includes(n)));
   if (predicting) return;
   predicting = true;
   let done = 0;
@@ -863,6 +879,7 @@ $("shortcutsToggle").onclick = () => { const el = $("shortcuts"); el.style.displ
 $("computeBtn").onclick = () => computeCurrent(!catInfo()?.has_model);
 $("computeSam3").onclick = () => computeCurrent(true);
 $("uploadBtn").onclick = uploadImages;
+$("computeMissing").onclick = () => queuePredictions(missingPredictions().map(i => i.name));
 $("deleteImageBtn").onclick = deleteImage;
 $("exportBtn").onclick = async () => {
   if (dirty && !confirm("L'immagine corrente ha modifiche non salvate, che non saranno nello zip. Continuare?")) return;
