@@ -242,7 +242,10 @@ def thumb(image_id: str):
 	get_meta(image_id)
 	file = path("cache", image_id, "thumb.jpg")
 	if not os.path.isfile(file):
-		img = work_image(image_id)
+		try:
+			img = work_image(image_id)
+		except FileNotFoundError:
+			raise HTTPException(404, "Immagine non trovata.")
 		img.thumbnail((THUMB_SIDE, THUMB_SIDE), Image.LANCZOS)
 		os.makedirs(os.path.dirname(file), exist_ok=True)
 		img.save(file, quality=80)
@@ -300,9 +303,39 @@ async def upload_model(category_name: str = Form(...), file: UploadFile = File(.
 
 # --- images ---------------------------------------------------------------------------------
 
+MAX_ZIP_ENTRIES, MAX_ENTRY_BYTES = 2000, 200 * 1024 * 1024
+
+
+def expand_zips(items):
+	"""Replaces every .zip in (bytes, filename) items with the images inside it (folders and
+	non-image files such as __MACOSX/._x.jpg are skipped); anything that is not a zip passes through."""
+	for data, filename in items:
+		if not filename.lower().endswith(".zip"):
+			yield data, filename
+			continue
+		try:
+			with zipfile.ZipFile(io.BytesIO(data)) as z:
+				entries = [e for e in z.infolist() if not e.is_dir() and os.path.splitext(e.filename)[1].lower() in IMAGE_EXTS
+					and "__MACOSX" not in e.filename and not os.path.basename(e.filename).startswith(".")]
+				if len(entries) > MAX_ZIP_ENTRIES:
+					raise ValueError(f"troppi file ({len(entries)}, massimo {MAX_ZIP_ENTRIES})")
+				for e in entries:
+					if e.file_size > MAX_ENTRY_BYTES:
+						yield None, f"{filename}/{e.filename}: file troppo grande"
+					else:
+						yield z.read(e), os.path.basename(e.filename)
+				if not entries:
+					yield None, f"{filename}: nessuna immagine dentro lo zip"
+		except Exception as e:
+			yield None, f"{filename}: zip non leggibile ({e})"
+
+
 def ingest_many(items, cat: str) -> dict:
 	added, duplicates, errors = [], [], []
-	for data, filename in items:
+	for data, filename in expand_zips(items):
+		if data is None:  # a problem found while unpacking a zip; filename is the message
+			errors.append(filename)
+			continue
 		try:
 			image_id, existed = ingest(data, filename, cat)
 			(duplicates if existed else added).append(image_id)
