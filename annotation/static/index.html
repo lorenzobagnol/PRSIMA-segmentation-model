@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Creazione dataset</title>
+<style>
+  :root { --bg:#111; --panel:#1b1b1b; --line:#2e2e2e; --text:#e8e8e8; --muted:#9a9a9a; --accent:#e5484d; --warn:#f5a623; --ok:#46a758; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--text); font:13px system-ui, sans-serif; overflow:hidden; }
+  #app { display:flex; flex-direction:column; height:100%; }
+
+  /* --- top bar --- */
+  #topbar { display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--panel); border-bottom:1px solid var(--line); flex:none; }
+  #topbar h1 { font-size:14px; margin:0; color:#fff; font-weight:700; white-space:nowrap; }
+  #topbar select { min-width:160px; }
+  #topbar .spacer { flex:1; }
+  #topbar .status { color:var(--muted); font-size:11px; white-space:nowrap; }
+  #topbar button.icon { width:auto; padding:6px 10px; }
+
+  /* --- generic controls --- */
+  select, button, input[type=range], input[type=file], input[type=text] { font:inherit; }
+  select, button, input[type=text] { background:#262626; color:var(--text); border:1px solid #3a3a3a; border-radius:6px; padding:6px 8px; }
+  button { cursor:pointer; } button:hover { background:#303030; } button:disabled { opacity:.45; cursor:default; }
+  button.primary { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+  button.primary:hover { filter:brightness(1.1); }
+  .row { display:flex; gap:6px; } .row > * { flex:1; min-width:0; }
+  kbd { font-size:10px; color:var(--muted); border:1px solid #444; border-radius:3px; padding:0 3px; margin-left:auto; }
+
+  /* --- collapsible panels under the top bar (new category / data) --- */
+  .dropPanel { display:none; background:#161616; border-bottom:1px solid var(--line); padding:12px; gap:10px; flex-wrap:wrap; }
+  .dropPanel.open { display:flex; }
+  .dropPanel .field { display:flex; flex-direction:column; gap:4px; min-width:160px; }
+  .dropPanel .field label { font-size:11px; color:var(--muted); }
+  .dropPanel .prompts { display:flex; flex-direction:column; gap:4px; min-width:220px; }
+  .dropPanel .actions { display:flex; align-items:flex-end; gap:6px; }
+  .hint { color:var(--muted); font-size:11px; line-height:1.6; }
+
+  /* --- main 3-column area --- */
+  #main { flex:1; display:flex; min-height:0; }
+  #side { width:270px; flex:none; background:var(--panel); border-right:1px solid var(--line); padding:12px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; }
+  #viewport { flex:1; position:relative; overflow:hidden; cursor:crosshair; background:#0a0a0a; min-width:0; }
+  #gallery { width:260px; flex:none; background:var(--panel); border-left:1px solid var(--line); display:flex; flex-direction:column; min-height:0; }
+
+  #stage { position:absolute; left:0; top:0; transform-origin:0 0; }
+  #stage canvas { position:absolute; left:0; top:0; }
+  #heat { opacity:.65; }
+  #brush { position:absolute; border:1px solid #fff; border-radius:50%; pointer-events:none; display:none; box-shadow:0 0 0 1px #000; }
+  #brush.square { border-radius:2px; }
+  #empty { position:absolute; inset:0; display:none; align-items:center; justify-content:center; flex-direction:column; gap:12px; color:var(--muted); text-align:center; padding:24px; }
+  #busy { position:absolute; right:12px; top:12px; background:#000c; padding:6px 10px; border-radius:6px; display:none; }
+
+  h2 { font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:0 0 6px; font-weight:600; }
+  .group { border-top:1px solid var(--line); padding-top:10px; }
+  .modes { display:grid; grid-template-columns:1fr 1fr; gap:4px; }
+  .modes label { display:flex; align-items:center; gap:6px; padding:5px 6px; border:1px solid #333; border-radius:6px; cursor:pointer; font-size:12px; }
+  .modes label:has(input:checked) { border-color:var(--accent); background:#2a1717; }
+  .field-row { display:flex; justify-content:space-between; color:var(--muted); margin:6px 0 2px; }
+  .check { display:flex; align-items:center; gap:6px; margin-top:6px; cursor:pointer; }
+  .check input { width:auto; }
+  .chips { display:flex; flex-wrap:wrap; gap:4px; margin:2px 0 6px; }
+  .chips .chipLabel { width:100%; font-size:11px; color:var(--muted); margin-top:4px; }
+  .chip { padding:4px 10px; border-radius:999px; font-size:12px; line-height:1.3; }
+  .chip.active { background:#2a1717; border-color:var(--accent); color:#fff; }
+  #status { background:#141414; border:1px solid var(--line); border-radius:6px; padding:8px; min-height:52px; line-height:1.4; }
+  #status b { color:#fff; }
+
+  /* --- gallery --- */
+  #gallery .galleryHead { padding:10px; border-bottom:1px solid var(--line); display:flex; flex-direction:column; gap:6px; }
+  #gallery .galleryCount { color:var(--muted); font-size:11px; }
+  #galleryGrid { flex:1; overflow-y:auto; display:grid; grid-template-columns:1fr 1fr; gap:6px; padding:8px; align-content:start; }
+  .thumb { position:relative; border-radius:6px; overflow:hidden; cursor:pointer; border:2px solid transparent; background:#0a0a0a; aspect-ratio:1; }
+  .thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+  .thumb.current { border-color:var(--accent); }
+  .thumb .badge { position:absolute; top:3px; right:3px; font-size:10px; line-height:1; padding:2px 4px; border-radius:4px; background:#000a; }
+  .thumb .badge.ok { color:var(--ok); } .thumb .badge.test { color:var(--warn); }
+  .thumb .name { position:absolute; bottom:0; left:0; right:0; font-size:9px; padding:2px 4px; background:#000a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="topbar">
+    <h1>Dataset</h1>
+    <select id="category"></select>
+    <button id="newCategoryBtn" class="icon">+ categoria</button>
+    <div class="spacer"></div>
+    <span class="status" id="deviceStatus"></span>
+    <button id="dataBtn" class="icon">Dati</button>
+    <button id="exportBtn" class="icon">Esporta zip</button>
+  </div>
+
+  <div class="dropPanel" id="newCategoryPanel">
+    <div class="field"><label>Nome</label><input type="text" id="ncName" placeholder="es. AttiVandalici"></div>
+    <div class="field"><label>Tipo</label><select id="ncKind"></select></div>
+    <div class="prompts">
+      <label class="hint">Prompt SAM 3 (max 3, frasi brevi in inglese — non più modificabili dopo la creazione)</label>
+      <input type="text" id="ncPrompt1" placeholder="es. graffiti">
+      <input type="text" id="ncPrompt2" placeholder="es. spray paint">
+      <input type="text" id="ncPrompt3" placeholder="es. vandalism mark">
+    </div>
+    <div class="actions"><button id="ncSave" class="primary">Crea categoria</button></div>
+  </div>
+
+  <div class="dropPanel" id="dataPanel">
+    <div class="field">
+      <label>Carica immagini (categoria: <b id="uploadCatLabel">—</b>)</label>
+      <input type="file" id="files" multiple accept="image/jpeg,image/png,image/webp">
+    </div>
+    <div class="actions"><button id="uploadBtn" class="primary">Carica</button></div>
+    <div class="actions"><button id="deleteImageBtn">Elimina immagine corrente</button></div>
+  </div>
+
+  <div id="main">
+    <div id="side">
+      <div class="hint" id="progress"></div>
+
+      <div class="group">
+        <h2>1. Azione al clic</h2>
+        <div class="modes">
+          <label><input type="radio" name="mode" value="flood" checked>Accendi zona<kbd>1</kbd></label>
+          <label><input type="radio" name="mode" value="erase">Cancella macchia<kbd>2</kbd></label>
+          <label><input type="radio" name="mode" value="samAdd">SAM aggiungi<kbd>3</kbd></label>
+          <label><input type="radio" name="mode" value="samRemove">SAM togli<kbd>4</kbd></label>
+          <label><input type="radio" name="mode" value="brushAdd">Pennello +<kbd>5</kbd></label>
+          <label><input type="radio" name="mode" value="brushRemove">Pennello −<kbd>6</kbd></label>
+        </div>
+      </div>
+
+      <!-- 2. impostazioni: solo quelle rilevanti per l'azione scelta sopra sono visibili -->
+      <div class="group">
+        <h2>2. Mappa di probabilità</h2>
+        <div id="mapChips"></div>
+        <div class="field-row"><span>Soglia</span><span id="thrVal"></span></div>
+        <input type="range" id="thr" min="0.01" max="0.95" step="0.01" value="0.2" style="width:100%">
+        <label class="check"><input type="checkbox" id="relative">Soglia relativa al punto cliccato</label>
+        <button id="addAll" style="margin-top:6px;width:100%">Aggiungi tutta la mappa sopra soglia</button>
+      </div>
+      <div class="group" id="samSettings">
+        <h2>Dimensione oggetto <span class="hint">— per "SAM"</span></h2>
+        <select id="samSize" style="width:100%"><option>auto</option><option>piccola</option><option>media</option><option>grande</option></select>
+        <div class="hint" style="margin-top:6px">Un clic propone 3 maschere (piccola/media/grande): se "auto" non prende quella giusta, forzala qui e riclicca.</div>
+      </div>
+      <div class="group" id="brushSettings">
+        <h2>2. Raggio pennello <span class="hint">— per "Pennello"</span></h2>
+        <div class="field-row"><span>Raggio</span><span id="brushVal"></span></div>
+        <input type="range" id="brushR" min="1" max="120" step="1" value="12" style="width:100%">
+      </div>
+
+      <div class="group">
+        <h2>3. Visualizzazione</h2>
+        <label class="check"><input type="checkbox" id="showMap">Mostra mappa di probabilità <span class="hint">(blu = sopra soglia)</span><kbd>M</kbd></label>
+        <div class="field-row"><span>Opacità maschera</span></div>
+        <input type="range" id="opacity" min="0.1" max="0.9" step="0.05" value="0.45" style="width:100%">
+      </div>
+
+      <div class="group">
+        <h2>4. Previsione</h2>
+        <button id="computeSam3" style="width:100%">Calcola anche SAM 3 (aiuto extra)</button>
+      </div>
+
+      <div class="group">
+        <h2>5. Modifica e salvataggio</h2>
+        <div class="row"><button id="undo">Annulla</button><button id="reset">Ripristina</button><button id="clear">Svuota</button></div>
+        <button id="save" class="primary" style="margin-top:8px;width:100%">Salva</button>
+      </div>
+
+      <div id="status"></div>
+
+      <div class="group">
+        <button id="shortcutsToggle" style="width:100%">? Scorciatoie da tastiera</button>
+        <div class="hint" id="shortcuts" style="display:none;margin-top:6px">
+          Rotellina: zoom · tasto destro trascinato (o spazio + trascina): sposta · <kbd>F</kbd> adatta ·
+          tieni premuto <kbd>H</kbd> nasconde la maschera · <kbd>Ctrl+Z</kbd> annulla · <kbd>S</kbd> salva ·
+          <kbd>←</kbd><kbd>→</kbd> immagine precedente/successiva nella galleria.
+        </div>
+      </div>
+    </div>
+
+    <div id="viewport">
+      <div id="stage"><canvas id="photo"></canvas><canvas id="heat"></canvas><canvas id="overlay"></canvas></div>
+      <div id="brush"></div>
+      <div id="empty"><div id="emptyText"></div><button id="computeBtn" class="primary" style="width:auto">Calcola previsione</button></div>
+      <div id="busy"></div>
+    </div>
+
+    <div id="gallery">
+      <div class="galleryHead">
+        <select id="filter"></select>
+        <div class="galleryCount" id="galleryCount"></div>
+      </div>
+      <div id="galleryGrid"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const viewport = $("viewport"), stage = $("stage");
+const photoC = $("photo"), heatC = $("heat"), overC = $("overlay");
+const UNDO_LIMIT = 25;
+
+let st = { categories: [], kinds: [], images: [], has_sam3: false };   // from /api/state
+let curCategory = null;  // name of the category currently selected in the top bar
+let cur = null;          // {image, W, H, mask, probs, overlayData, computed, modelComputed}
+let undoStack = [], dirty = false;
+let view = { s: 1, tx: 0, ty: 0 };
+let hideMask = false, spaceDown = false, loadToken = 0, busyCount = 0;
+
+// ---------- helpers ----------
+
+async function api(path, body) {
+  const res = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const out = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(out.detail || res.statusText);
+  return out;
+}
+
+async function busy(label, fn) {
+  busyCount++; $("busy").textContent = label; $("busy").style.display = "block";
+  try { return await fn(); } finally { if (--busyCount === 0) $("busy").style.display = "none"; }
+}
+
+function loadImage(url, timeoutMs = 20000) {
+  // A request that hangs (Cloud Run cold start, a stalled connection) would otherwise leave this
+  // promise pending forever, which — combined with serialized navigation — would lock up
+  // Succ./Prec. for good. The timeout guarantees it always settles one way or the other.
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const timer = setTimeout(() => { img.src = ""; reject(new Error(`timeout (${timeoutMs / 1000}s) nel caricare ${url}`)); }, timeoutMs);
+    img.onload = () => { clearTimeout(timer); resolve(img); };
+    img.onerror = () => { clearTimeout(timer); reject(new Error("impossibile caricare " + url)); };
+    img.src = url;
+  });
+}
+
+function grayFromImage(img, W, H) {
+  const c = document.createElement("canvas"); c.width = W; c.height = H;
+  const ctx = c.getContext("2d", { willReadFrequently: true });
+  ctx.drawImage(img, 0, 0, W, H);
+  const rgba = ctx.getImageData(0, 0, W, H).data, out = new Uint8Array(W * H);
+  for (let i = 0; i < out.length; i++) out[i] = rgba[i * 4];
+  return out;
+}
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const dataUrl = rel => "/data/" + rel.split("/").map(encodeURIComponent).join("/") + `?v=${Date.now()}`;
+const imageInfo = name => st.images.find(i => i.name === name);
+const catInfo = name => st.categories.find(c => c.name === (name ?? curCategory));
+const catUrl = file => dataUrl(`${imageInfo(cur.image).dir}/${file}`);
+
+function setStatus(html) { $("status").innerHTML = html; }
+
+function coverage() { let n = 0; for (const v of cur.mask) n += v; return n / cur.mask.length; }
+
+function note(text) {
+  if (!cur) { setStatus(text || ""); return; }
+  const info = imageInfo(cur.image);
+  const state = dirty ? "<span style='color:var(--warn)'>modifiche non salvate</span>" : info?.reviewed ? "salvata" : "non ancora salvata";
+  setStatus(`<b>${esc(info?.label || cur.image)}</b> — maschera ${(coverage() * 100).toFixed(1)}%, ${state}<br>${text || ""}`);
+}
+
+function imagesInCategory(name = curCategory) { return st.images.filter(i => i.category === name); }
+
+// ---------- top bar: categories ----------
+
+function refreshCategorySelect() {
+  const sel = $("category"), prev = sel.value;
+  sel.innerHTML = st.categories.map(c => {
+    const n = imagesInCategory(c.name).length;
+    const engine = c.has_model ? "U-Net" : "SAM 3";
+    return `<option value="${esc(c.name)}">${esc(c.name)} (${n}, ${engine})</option>`;
+  }).join("");
+  if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
+  else if (sel.options.length) sel.value = sel.options[0].value;
+  curCategory = sel.value || null;
+}
+
+async function reloadState() {
+  st = await (await fetch("/api/state")).json();
+  $("deviceStatus").textContent = st.has_sam3 ? `SAM 3: ${st.sam_device}` : "SAM 3 non disponibile";
+  $("ncKind").innerHTML = st.kinds.map(k => `<option>${k}</option>`).join("");
+  refreshCategorySelect();
+  $("uploadCatLabel").textContent = curCategory || "—";
+  refreshGallery();
+}
+
+// ---------- gallery (thumbnail grid, not a dropdown — this will hold hundreds of images) ----------
+
+function visibleImages() {
+  const list = imagesInCategory();
+  const f = $("filter").value;
+  if (f === "todo") return list.filter(i => !i.reviewed);
+  return list;
+}
+
+function refreshGallery() {
+  $("filter").innerHTML = `<option value="all">Tutte</option><option value="todo">Da rivedere</option>`;
+  const list = imagesInCategory(), visible = visibleImages();
+  $("galleryCount").textContent = `${list.length} immagini · salvate ${list.filter(i => i.reviewed).length} · test ${list.filter(i => i.test).length}`;
+  $("galleryGrid").innerHTML = visible.map(i => `
+    <div class="thumb${cur?.image === i.name ? " current" : ""}" data-name="${esc(i.name)}" title="${esc(i.label)}">
+      <img src="${dataUrl(i.work)}" loading="lazy">
+      ${i.reviewed ? '<span class="badge ok">✓</span>' : ""}
+      ${i.test ? '<span class="badge test">test</span>' : ""}
+      <span class="name">${esc(i.label)}</span>
+    </div>`).join("") || `<div class="hint" style="padding:10px">Nessuna immagine qui.</div>`;
+  $("progress").textContent = `${curCategory || "—"}: ${list.length} immagini · salvate ${list.filter(i => i.reviewed).length}`;
+}
+
+$("galleryGrid").addEventListener("click", e => {
+  const el = e.target.closest(".thumb");
+  if (el) openImage(el.dataset.name);
+});
+
+// ---------- loading an image ----------
+
+// Clicking Succ./Prec. (or the arrow keys) repeatedly before a load finishes used to start a new
+// overlapping load each time; serializing navigation avoids that: a click while one is already
+// loading just updates where to go once it's done, so at most two loads ever run.
+let navInFlight = false, navPending = null;
+
+async function openImage(image) {
+  if (navInFlight) { navPending = image; return; }
+  navInFlight = true;
+  try {
+    await openImageNow(image);
+  } finally {
+    navInFlight = false;
+    if (navPending !== null) {
+      const next = navPending;
+      navPending = null;
+      if (next !== cur?.image) openImage(next);
+    }
+  }
+}
+
+async function openImageNow(image) {
+  if (dirty && !confirm("Ci sono modifiche non salvate. Continuare senza salvare?")) return;
+  const token = ++loadToken, info = imageInfo(image);
+  if (!info) return;
+  setStatus(`Carico <b>${esc(info.label)}</b>…`);
+  let img;
+  try {
+    try {
+      img = await loadImage(dataUrl(info.work));
+    } catch (e) {
+      img = await loadImage(dataUrl(info.work));  // un retry: bucket appena scritto, o sessione da rinnovare
+    }
+  } catch (e) {
+    note(`Errore nel caricare <b>${esc(info.label)}</b>: ${esc(e.message)}. Riprova o ricarica la pagina.`);
+    return;
+  }
+  if (token !== loadToken) return;
+  const W = img.naturalWidth, H = img.naturalHeight, sameImage = cur && cur.image === image;
+  cur = { image, W, H, mask: new Uint8Array(W * H), probs: {}, overlayData: new ImageData(W, H), computed: false, modelComputed: false };
+  undoStack = []; dirty = false;
+  for (const c of [photoC, heatC, overC]) { c.width = W; c.height = H; }
+  photoC.getContext("2d").drawImage(img, 0, 0);
+  if (info.category !== curCategory) { curCategory = info.category; $("category").value = curCategory; }
+  await openCategoryData(token);
+  if (!sameImage) fit();
+  refreshGallery();
+  if (st.has_sam3) busy("SAM prepara l'immagine…", () => api("/api/warm", { image })).catch(() => {});
+}
+
+async function openCategoryData(token = loadToken) {
+  const info = imageInfo(cur.image);
+  cur.mask.fill(0); cur.probs = {}; cur.computed = !!info.computed; cur.modelComputed = !!info.model_computed;
+  refreshMapChips();
+  if (info.computed || info.reviewed) {
+    try {
+      const m = grayFromImage(await loadImage(dataUrl(info.mask)), cur.W, cur.H);
+      for (let i = 0; i < m.length; i++) cur.mask[i] = m[i] > 127 ? 1 : 0;
+    } catch (e) { /* no mask yet */ }
+  }
+  if (token !== loadToken) return;
+  await loadCurrentProb();
+  showEmpty();
+  drawHeat(); renderOverlay();
+  note("");
+}
+
+function showEmpty() {
+  const info = imageInfo(cur.image), el = $("empty");
+  const need = !info.model_computed && !info.computed;
+  el.style.display = need ? "flex" : "none";
+  if (need) $("emptyText").innerHTML = `Nessuna previsione calcolata ancora.<br>Puoi comunque disegnare col pennello o usare SAM a clic.`;
+}
+
+// Quale mappa di probabilità è attiva: una "fonte" (modello, oppure SAM 3 in versione istanze o
+// semantica) e, per SAM 3, un prompt specifico oppure "tutti". Tutte le opzioni sono visibili
+// come pulsanti, niente menu a tendina da aprire ogni volta.
+let mapSource = null, mapPrompt = "all";
+
+function availableSources(info) {
+  const out = [];
+  if (info.model_computed) out.push(["model", "Modello"]);
+  if (info.computed) out.push(["istanze", "SAM istanze"], ["semantica", "SAM semantica"]);
+  return out;
+}
+
+function currentMapFile() {
+  if (mapSource === "model") return "prob_model.png";
+  if (mapSource === "istanze") return mapPrompt === "all" ? "prob_query.png" : `prompts/${mapPrompt}.png`;
+  if (mapSource === "semantica") return mapPrompt === "all" ? "prob_semantic.png" : `prompts/${mapPrompt}__semantic.png`;
+  return null;
+}
+
+function refreshMapChips() {
+  const info = imageInfo(cur.image), sources = availableSources(info), box = $("mapChips");
+  const prompts = info.prompts || [];
+  if (!sources.some(([k]) => k === mapSource)) mapSource = sources.length ? sources[0][0] : null;
+  if (mapPrompt !== "all" && !prompts.some(p => p.slug === mapPrompt)) mapPrompt = "all";
+  if (!sources.length) { box.innerHTML = `<div class="hint">Nessuna mappa calcolata per questa immagine.</div>`; return; }
+  const chip = (kind, value, label, active, disabled = false) =>
+    `<button class="chip${active ? " active" : ""}" data-kind="${kind}" data-value="${esc(value)}"${disabled ? " disabled" : ""}>${esc(label)}</button>`;
+  let html = `<div class="chips"><span class="chipLabel">Fonte</span>` +
+    sources.map(([k, l]) => chip("source", k, l, k === mapSource)).join("") + `</div>`;
+  if ((mapSource === "istanze" || mapSource === "semantica") && prompts.length) {
+    html += `<div class="chips"><span class="chipLabel">Prompt</span>` + chip("prompt", "all", "Tutti", mapPrompt === "all") +
+      prompts.map(p => chip("prompt", p.slug, p.text, mapPrompt === p.slug, mapSource === "semantica" && !p.semantic)).join("") + `</div>`;
+  }
+  box.innerHTML = html;
+}
+
+async function ensureProb(file) {
+  if (!cur.probs[file]) cur.probs[file] = grayFromImage(await loadImage(catUrl(file)), cur.W, cur.H);
+  return cur.probs[file];
+}
+async function loadCurrentProb() {
+  const file = currentMapFile();
+  return file ? ensureProb(file).catch(() => null) : null;
+}
+const currentProb = () => { const f = cur && currentMapFile(); return f ? cur.probs[f] : null; };
+
+async function selectMap(kind, value) {
+  if (kind === "source") { mapSource = value; if (value === "model") mapPrompt = "all"; }
+  else mapPrompt = value;
+  refreshMapChips();
+  if (!(await loadCurrentProb())) note("Mappa non disponibile.");
+  $("showMap").checked = true;  // scegliere una mappa vuol dire volerla vedere
+  drawHeat(); renderOverlay();
+}
+
+// ---------- rendering ----------
+
+function drawHeat() {
+  const show = $("showMap").checked, prob = currentProb();
+  heatC.style.display = show && prob ? "block" : "none";
+  if (!show || !prob) return;
+  const data = new ImageData(cur.W, cur.H), d = data.data;
+  for (let i = 0; i < prob.length; i++) {  // black -> red -> yellow
+    const p = prob[i] / 255;
+    d[i * 4] = 255 * p; d[i * 4 + 1] = 255 * p * p; d[i * 4 + 2] = 0; d[i * 4 + 3] = 255;
+  }
+  heatC.getContext("2d").putImageData(data, 0, 0);
+}
+
+function renderOverlay(x0 = 0, y0 = 0, x1 = cur.W, y1 = cur.H) {
+  const { W, H, mask } = cur, d = cur.overlayData.data;
+  x0 = Math.max(0, x0 - 1); y0 = Math.max(0, y0 - 1); x1 = Math.min(W, x1 + 1); y1 = Math.min(H, y1 + 1);
+  const alpha = Math.round(parseFloat($("opacity").value) * 255);
+  const prob = $("showMap").checked ? currentProb() : null, thr = Math.round(parseFloat($("thr").value) * 255);
+  for (let y = y0; y < y1; y++) {
+    for (let x = x0; x < x1; x++) {
+      const i = y * W + x, o = i * 4;
+      if (mask[i]) {
+        const edge = x === 0 || y === 0 || x === W - 1 || y === H - 1 || !mask[i - 1] || !mask[i + 1] || !mask[i - W] || !mask[i + W];
+        if (edge) { d[o] = 255; d[o + 1] = 230; d[o + 2] = 0; d[o + 3] = 255; }
+        else { d[o] = 255; d[o + 1] = 0; d[o + 2] = 0; d[o + 3] = alpha; }
+      } else if (prob && prob[i] >= thr) { d[o] = 0; d[o + 1] = 160; d[o + 2] = 255; d[o + 3] = 110; }
+      else d[o + 3] = 0;
+    }
+  }
+  overC.getContext("2d").putImageData(cur.overlayData, 0, 0, x0, y0, x1 - x0, y1 - y0);
+}
+
+function applyView() {
+  stage.style.transform = `translate(${view.tx}px, ${view.ty}px) scale(${view.s})`;
+  for (const c of [photoC, heatC, overC]) c.style.imageRendering = view.s >= 2 ? "pixelated" : "auto";
+}
+
+function fit() {
+  if (!cur) return;
+  const vw = viewport.clientWidth, vh = viewport.clientHeight;
+  view.s = Math.min(vw / cur.W, vh / cur.H) * 0.98;
+  view.tx = (vw - cur.W * view.s) / 2; view.ty = (vh - cur.H * view.s) / 2;
+  applyView();
+}
+
+// ---------- editing ----------
+
+function pushUndo() {
+  undoStack.push(cur.mask.slice());
+  if (undoStack.length > UNDO_LIMIT) undoStack.shift();
+  dirty = true;
+}
+
+function floodFill(source, sx, sy, accept, apply) {
+  // 4-connected, like scipy.ndimage.label's default structure. Returns the touched bounding box.
+  const { W, H } = cur, seen = new Uint8Array(W * H), stack = [sy * W + sx];
+  let x0 = sx, y0 = sy, x1 = sx, y1 = sy, count = 0;
+  seen[stack[0]] = 1;
+  while (stack.length) {
+    const i = stack.pop(), x = i % W, y = (i - x) / W;
+    apply(i); count++;
+    if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+    for (const j of [x > 0 ? i - 1 : -1, x < W - 1 ? i + 1 : -1, y > 0 ? i - W : -1, y < H - 1 ? i + W : -1]) {
+      if (j >= 0 && !seen[j] && accept(source[j])) { seen[j] = 1; stack.push(j); }
+    }
+  }
+  return { x0, y0, x1: x1 + 1, y1: y1 + 1, count };
+}
+
+async function actFlood(x, y) {
+  const prob = await loadCurrentProb();
+  if (!prob) { note("Mappa non disponibile: calcola una previsione o scegline un'altra."); return; }
+  const clicked = prob[y * cur.W + x], t = parseFloat($("thr").value);
+  const thr = Math.max(1, Math.round($("relative").checked ? clicked * t : t * 255));
+  if (clicked < thr) { note(`Il punto cliccato ha p = ${(clicked / 255).toFixed(2)}, sotto la soglia ${(thr / 255).toFixed(2)}: abbassa la soglia o usa SAM.`); return; }
+  pushUndo();
+  const box = floodFill(prob, x, y, v => v >= thr, j => { cur.mask[j] = 1; });
+  renderOverlay(box.x0, box.y0, box.x1, box.y1);
+  note(`Accesa zona connessa con p ≥ ${(thr / 255).toFixed(2)} (p al clic ${(clicked / 255).toFixed(2)}).`);
+}
+
+function actErase(x, y) {
+  if (!cur.mask[y * cur.W + x]) { note("Nessuna macchia della maschera sotto il clic."); return; }
+  pushUndo();
+  const box = floodFill(cur.mask, x, y, v => v === 1, j => { cur.mask[j] = 0; });
+  renderOverlay(box.x0, box.y0, box.x1, box.y1);
+  note(`Macchia rimossa (${box.count} pixel).`);
+}
+
+async function actSam(x, y, add) {
+  try {
+    const out = await busy("SAM…", () => api("/api/sam", { image: cur.image, x, y, size: $("samSize").value }));
+    if (out.empty) { note(out.note); return; }
+    const img = await loadImage("data:image/png;base64," + out.png);
+    const w = img.naturalWidth, h = img.naturalHeight, region = grayFromImage(img, w, h);
+    pushUndo();
+    for (let ry = 0; ry < h; ry++) for (let rx = 0; rx < w; rx++) {
+      if (region[ry * w + rx] > 127) cur.mask[(out.y + ry) * cur.W + out.x + rx] = add ? 1 : 0;
+    }
+    renderOverlay(out.x, out.y, out.x + w, out.y + h);
+    note(out.note);
+  } catch (e) { note(`Errore SAM: ${esc(e.message)}`); }
+}
+
+function paint(x, y, value) {
+  const r = parseInt($("brushR").value), { W, H, mask } = cur;
+  const x0 = Math.max(0, x - r), x1 = Math.min(W, x + r + 1), y0 = Math.max(0, y - r), y1 = Math.min(H, y + r + 1);
+  for (let py = y0; py < y1; py++) for (let px = x0; px < x1; px++) if ((px - x) ** 2 + (py - y) ** 2 <= r * r) mask[py * W + px] = value;
+  renderOverlay(x0, y0, x1, y1);
+}
+
+function paintLine(a, b, value) {
+  const steps = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) / Math.max(1, parseInt($("brushR").value) / 2)));
+  for (let k = 1; k <= steps; k++) paint(Math.round(a.x + (b.x - a.x) * k / steps), Math.round(a.y + (b.y - a.y) * k / steps), value);
+}
+
+async function addWholeMap() {
+  const prob = await loadCurrentProb();
+  if (!prob) { note("Mappa non disponibile."); return; }
+  const thr = Math.max(1, Math.round(parseFloat($("thr").value) * 255));
+  pushUndo(); let n = 0;
+  for (let i = 0; i < prob.length; i++) if (prob[i] >= thr && !cur.mask[i]) { cur.mask[i] = 1; n++; }
+  renderOverlay(); note(`Aggiunti ${n} pixel con p ≥ ${(thr / 255).toFixed(2)}.`);
+}
+
+function undo() {
+  if (!undoStack.length) { note("Niente da annullare."); return; }
+  cur.mask = undoStack.pop(); dirty = true; renderOverlay(); note("Annullato.");
+}
+
+async function resetTo(empty) {
+  pushUndo();
+  cur.mask.fill(0);
+  if (!empty && (cur.modelComputed || cur.computed)) {
+    const file = cur.modelComputed ? "mask_model.png" : "mask_sam3.png";
+    const g = grayFromImage(await loadImage(catUrl(file)), cur.W, cur.H);
+    for (let i = 0; i < g.length; i++) cur.mask[i] = g[i] > 127 ? 1 : 0;
+    renderOverlay(); note(`Ripristinata la previsione iniziale (${cur.modelComputed ? "modello" : "SAM 3"}).`);
+    return;
+  }
+  renderOverlay(); note(empty ? "Maschera svuotata." : "Nessuna previsione da ripristinare.");
+}
+
+// ---------- server actions ----------
+
+function updateImageState(state) {
+  const i = st.images.findIndex(x => x.name === state.name);
+  if (i >= 0) st.images[i] = state; else st.images.push(state);
+  refreshCategorySelect(); refreshGallery();
+}
+
+async function save() {
+  const c = document.createElement("canvas"); c.width = cur.W; c.height = cur.H;
+  const ctx = c.getContext("2d"), data = ctx.createImageData(cur.W, cur.H), d = data.data;
+  for (let i = 0; i < cur.mask.length; i++) { const v = cur.mask[i] ? 255 : 0; d[i * 4] = d[i * 4 + 1] = d[i * 4 + 2] = v; d[i * 4 + 3] = 255; }
+  ctx.putImageData(data, 0, 0);
+  try {
+    const out = await api("/api/save", { image: cur.image, png: c.toDataURL("image/png").split(",")[1] });
+    dirty = false; updateImageState(out.state); note("Salvata.");
+    return true;
+  } catch (e) { note(`Errore nel salvataggio: ${esc(e.message)}`); return false; }
+}
+
+async function computeCurrent(withSam3) {
+  if (dirty && !confirm("Il calcolo sostituisce la maschera iniziale; le modifiche non salvate verranno perse. Continuare?")) return;
+  const label = withSam3 ? "SAM 3 calcola… (25-45s)" : "Modello calcola…";
+  try {
+    const out = await busy(label, () => api("/api/compute", { image: cur.image, with_sam3: withSam3 }));
+    dirty = false; updateImageState(out.state); await openCategoryData();
+    note(`Previsione calcolata: ${(out.detected * 100).toFixed(1)}% rilevato.`);
+  } catch (e) { note(`Errore: ${esc(e.message)}`); }
+}
+
+function step(delta) {
+  const list = visibleImages(); if (!list.length) return;
+  const i = Math.max(0, list.findIndex(x => x.name === cur?.image));
+  openImage(list[(i + delta + list.length) % list.length].name);
+}
+
+// ---------- categories, upload, data panel ----------
+
+function togglePanel(el, open) {
+  const willOpen = open ?? !el.classList.contains("open");
+  document.querySelectorAll(".dropPanel").forEach(p => p.classList.remove("open"));
+  if (willOpen) el.classList.add("open");
+}
+
+async function createCategory() {
+  const name = $("ncName").value.trim();
+  const prompts = [$("ncPrompt1").value, $("ncPrompt2").value, $("ncPrompt3").value].map(s => s.trim()).filter(Boolean);
+  if (!name) { alert("Dai un nome alla categoria."); return; }
+  try {
+    await api("/api/categories", { name, kind: $("ncKind").value, prompts });
+    await reloadState();
+    $("category").value = name; curCategory = name; refreshGallery();
+    $("ncName").value = $("ncPrompt1").value = $("ncPrompt2").value = $("ncPrompt3").value = "";
+    togglePanel($("newCategoryPanel"), false);
+    note(`Categoria «${esc(name)}» creata.`);
+  } catch (e) { alert("Errore: " + e.message); }
+}
+
+async function uploadImages() {
+  const files = $("files").files;
+  if (!files.length) { note("Scegli uno o più file."); return; }
+  if (!curCategory) { note("Crea prima una categoria."); return; }
+  try {
+    const out = st.direct_upload ? await uploadDirect([...files], curCategory) : await busy(`Carico ${files.length} immagini…`, async () => {
+      const form = new FormData();
+      form.append("category_name", curCategory);
+      for (const f of files) form.append("files", f);
+      const res = await fetch("/api/upload", { method: "POST", body: form });
+      const j = await res.json(); if (!res.ok) throw new Error(j.detail || res.statusText); return j;
+    });
+    await reloadState(); $("files").value = "";
+    const engine = catInfo()?.has_model ? { with_sam3: false } : { with_sam3: true };
+    if (st.has_sam3 || catInfo()?.has_model) {
+      for (const [k, name] of out.added.entries()) {
+        try {
+          const r = await busy(`Previsione ${k + 1}/${out.added.length}: ${imageInfo(name)?.label || name}`, () => api("/api/compute", { image: name, ...engine }));
+          updateImageState(r.state);
+        } catch (e) { note(`Errore su ${esc(name)}: ${esc(e.message)}`); }
+      }
+    }
+    if (out.added.length) openImage(out.added[0]);
+    const dup = out.duplicates.length ? `<br>${out.duplicates.length} già presenti (stesso file).` : "";
+    note(`Caricate ${out.added.length} immagini in «${esc(curCategory)}».${dup}${out.errors.length ? "<br>" + out.errors.map(esc).join("<br>") : ""}`);
+  } catch (e) { note(`Errore nel caricamento: ${esc(e.message)}`); }
+}
+
+async function uploadDirect(files, categoryName) {
+  const { uploads } = await api("/api/upload-urls", { files: files.map(f => ({ name: f.name, type: f.type || "application/octet-stream" })) });
+  for (const [k, f] of files.entries()) {
+    await busy(`Invio ${k + 1}/${files.length}: ${f.name} (${(f.size / 1e6).toFixed(1)} MB)`, async () => {
+      const res = await fetch(uploads[k].url, { method: "PUT", headers: { "Content-Type": f.type || "application/octet-stream" }, body: f });
+      if (!res.ok) throw new Error(`${f.name}: upload fallito (${res.status})`);
+    });
+  }
+  return busy("Registro le immagini…", () => api("/api/ingest", { objects: uploads.map(u => u.object), category: categoryName }));
+}
+
+async function deleteImage() {
+  if (!cur || !confirm(`Eliminare definitivamente «${imageInfo(cur.image).label}» (originale, maschere e mappe)?`)) return;
+  const name = cur.image, list = visibleImages(), i = list.findIndex(x => x.name === name);
+  await api("/api/delete-image", { image: name });
+  dirty = false; await reloadState();
+  const next = visibleImages()[Math.min(i, visibleImages().length - 1)];
+  if (next) openImage(next.name); else { cur = null; note("Nessuna immagine."); }
+}
+
+// ---------- mouse & keyboard on the canvas ----------
+
+function toImage(e) {
+  const r = viewport.getBoundingClientRect();
+  return { x: Math.floor((e.clientX - r.left - view.tx) / view.s), y: Math.floor((e.clientY - r.top - view.ty) / view.s) };
+}
+const inside = p => cur && p.x >= 0 && p.y >= 0 && p.x < cur.W && p.y < cur.H;
+const mode = () => document.querySelector("input[name=mode]:checked").value;
+
+// Mostra solo le impostazioni pertinenti all'azione scelta, invece di tutte sempre insieme.
+function refreshModeVisibility() {
+  const m = mode();
+$("samSettings").style.display = (m === "samAdd" || m === "samRemove") ? "" : "none";
+  $("brushSettings").style.display = (m === "brushAdd" || m === "brushRemove") ? "" : "none";
+}
+document.querySelectorAll("input[name=mode]").forEach(r => r.addEventListener("change", refreshModeVisibility));
+let drag = null;
+
+viewport.addEventListener("contextmenu", e => e.preventDefault());
+viewport.addEventListener("mousedown", e => {
+  if (!cur || e.target.closest("#empty button")) return;
+  if (e.button === 2 || e.button === 1 || (e.button === 0 && spaceDown)) {
+    drag = { kind: "pan", x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty }; viewport.style.cursor = "grabbing"; return;
+  }
+  if (e.button !== 0) return;
+  const p = toImage(e); if (!inside(p)) return;
+  const m = mode();
+  if (m === "brushAdd" || m === "brushRemove") {
+    pushUndo(); const value = m === "brushAdd" ? 1 : 0; paint(p.x, p.y, value); drag = { kind: "brush", last: p, value };
+  } else if (m === "flood") actFlood(p.x, p.y);
+  else if (m === "erase") actErase(p.x, p.y);
+  else actSam(p.x, p.y, m === "samAdd");
+});
+window.addEventListener("mousemove", e => {
+  updateBrushCursor(e);
+  if (!drag) return;
+  if (drag.kind === "pan") { view.tx = drag.tx + e.clientX - drag.x; view.ty = drag.ty + e.clientY - drag.y; applyView(); }
+  else { const p = toImage(e); paintLine(drag.last, p, drag.value); drag.last = p; }
+});
+window.addEventListener("mouseup", () => {
+  if (drag && drag.kind === "brush") note("Pennello applicato.");
+  drag = null; viewport.style.cursor = "crosshair";
+});
+viewport.addEventListener("wheel", e => {
+  e.preventDefault(); if (!cur) return;
+  const r = viewport.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
+  const s = Math.min(40, Math.max(0.05, view.s * Math.exp(-e.deltaY * 0.0015))), k = s / view.s;
+  view.tx = mx - (mx - view.tx) * k; view.ty = my - (my - view.ty) * k; view.s = s;
+  applyView(); updateBrushCursor(e);
+}, { passive: false });
+
+function updateBrushCursor(e) {
+  const el = $("brush"), m = mode(), r = viewport.getBoundingClientRect();
+  const within = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+  const isBrush = m === "brushAdd" || m === "brushRemove";
+  const isSam = m === "samAdd" || m === "samRemove";
+  if (!cur || !within || (!isBrush && !isSam)) { el.style.display = "none"; return; }
+  el.classList.toggle("square", isSam);
+  // Il pennello ha un raggio impostabile in pixel immagine (vedi slider). SAM non ha un raggio
+  // vero — decide lui l'estensione dell'oggetto dal punto cliccato — ma il quadrato deve comunque
+  // essere proporzionato all'immagine (non un punto fisso minuscolo su una foto da 4000px):
+  // circa l'1% del lato maggiore, con un minimo per le foto piccole. Scala con lo zoom come il pennello.
+  const samR = Math.max(20, Math.round(Math.max(cur.W, cur.H) * 0.02));
+  const d = (isBrush ? parseInt($("brushR").value) : samR) * 2 * view.s;
+  el.style.display = "block"; el.style.width = el.style.height = d + "px";
+  el.style.left = (e.clientX - r.left - d / 2) + "px"; el.style.top = (e.clientY - r.top - d / 2) + "px";
+}
+
+window.addEventListener("keydown", e => {
+  const t = e.target;
+  if (t.tagName === "SELECT" || t.tagName === "INPUT" && (t.type === "text" || (t.type === "range" && e.key.startsWith("Arrow")))) return;
+  if (!cur) return;
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") { e.preventDefault(); undo(); return; }
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  const k = e.key.toLowerCase();
+  if (k >= "1" && k <= "6") { document.querySelectorAll("input[name=mode]")[parseInt(k) - 1].checked = true; refreshModeVisibility(); }
+  else if (k === " ") { spaceDown = true; e.preventDefault(); }
+  else if (k === "f") fit();
+  else if (k === "h" && !hideMask) { hideMask = true; overC.style.display = "none"; }
+  else if (k === "m") { $("showMap").checked = !$("showMap").checked; $("showMap").dispatchEvent(new Event("change")); }
+  else if (k === "s") { e.preventDefault(); save(); }
+  else if (k === "arrowright") step(1);
+  else if (k === "arrowleft") step(-1);
+});
+window.addEventListener("keyup", e => {
+  if (e.key === " ") spaceDown = false;
+  if (e.key.toLowerCase() === "h") { hideMask = false; overC.style.display = "block"; }
+});
+window.addEventListener("beforeunload", e => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
+window.addEventListener("resize", () => { if (cur) applyView(); });
+
+// ---------- controls ----------
+
+$("category").addEventListener("change", e => {
+  curCategory = e.target.value;
+  $("uploadCatLabel").textContent = curCategory;
+  refreshGallery();
+  const list = visibleImages();
+  if (list.length) openImage(list[0].name); else { cur = null; note(`Nessuna immagine in «${esc(curCategory)}».`); }
+});
+$("newCategoryBtn").onclick = () => togglePanel($("newCategoryPanel"));
+$("dataBtn").onclick = () => togglePanel($("dataPanel"));
+$("ncSave").onclick = createCategory;
+$("filter").addEventListener("change", refreshGallery);
+$("mapChips").addEventListener("click", e => {
+  const b = e.target.closest(".chip");
+  if (b && !b.disabled && cur) selectMap(b.dataset.kind, b.dataset.value);
+});
+$("showMap").addEventListener("change", async () => { if (cur) { await loadCurrentProb(); drawHeat(); renderOverlay(); } });
+// Un pulsante cliccato resta "focalizzato": premere poi Spazio (tasto per spostare l'immagine)
+// lo riattiverebbe. Meglio togliere il focus subito dopo il clic.
+document.addEventListener("click", e => { const b = e.target.closest("button"); if (b) b.blur(); });
+$("thr").addEventListener("input", () => { $("thrVal").textContent = parseFloat($("thr").value).toFixed(2); if (cur && $("showMap").checked) renderOverlay(); });
+$("brushR").addEventListener("input", () => { $("brushVal").textContent = $("brushR").value + " px"; });
+$("opacity").addEventListener("input", () => { if (cur) renderOverlay(); });
+$("addAll").onclick = addWholeMap;
+$("undo").onclick = undo;
+$("reset").onclick = () => resetTo(false);
+$("clear").onclick = () => resetTo(true);
+$("save").onclick = save;
+$("shortcutsToggle").onclick = () => { const el = $("shortcuts"); el.style.display = el.style.display === "none" ? "block" : "none"; };
+$("computeBtn").onclick = () => computeCurrent(!catInfo()?.has_model);
+$("computeSam3").onclick = () => computeCurrent(true);
+$("uploadBtn").onclick = uploadImages;
+$("deleteImageBtn").onclick = deleteImage;
+$("exportBtn").onclick = async () => {
+  if (dirty && !confirm("L'immagine corrente ha modifiche non salvate, che non saranno nello zip. Continuare?")) return;
+  try {
+    const out = await busy("Creo lo zip…", () => api("/api/export", {}));
+    note(`${esc(out.note)} <a href="${out.url}" style="color:#fff">Scarica</a>`);
+    location.href = out.url;
+  } catch (e) { note(`Errore: ${esc(e.message)}`); }
+};
+
+(async () => {
+  $("thrVal").textContent = parseFloat($("thr").value).toFixed(2);
+  $("brushVal").textContent = $("brushR").value + " px";
+  refreshModeVisibility();
+  await reloadState();
+  const list = visibleImages();
+  if (list.length) openImage(list[0].name);
+  else { togglePanel($("dataPanel"), true); note("Nessuna immagine: caricane qualcuna dal pannello «Dati», o crea prima una categoria."); }
+})();
+</script>
+</body>
+</html>

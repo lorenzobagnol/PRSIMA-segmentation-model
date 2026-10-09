@@ -7,7 +7,27 @@ __pycache__/
 # Ignore model weights
 saved_model.pth
 models/
+models_distacco*.pth
+
+# Local checkpoint/prediction comparisons (compare_predictions.py, compare_checkpoints.py)
+predictions_review/
+checkpoint_compare/
 
 # Ignore the images and masks data
 images-and-masks/raw-data/*
 images-and-masks/torch-data*
+
+# Ignore dataset
+dataset_no_annotation
+
+
+# Secrets
+.env
+
+# Annotation tool data (probability maps, corrected masks)
+annotation_data/
+images-and-masks/annotated/
+
+# Dati e log della prova locale dell'app di annotazione
+annotation_store_local/
+local_server.log

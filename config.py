@@ -12,6 +12,10 @@ class DataConfig:
 	pbr_maps: list[str]
 	resolution: tuple[int, int] = (1024, 1024)
 	use_only_notna: bool = True
+	# Held-out set, never trained on: train.py evaluates on it each epoch instead of on the
+	# training data itself. Built separately with create_dataset.py on a config pointing at the
+	# test images (same pbr_maps/resolution). Leave unset to fall back to the old train-only eval.
+	test_output_folder: str | None = None
 
 
 @dataclass
@@ -27,6 +31,7 @@ class ModelConfig:
 class TrainConfig:
 	batch_size: int = 4
 	lr: float = 1e-4
+	weight_decay: float = 1e-4
 	epochs: int = 50
 	device: str = "cuda"
 	output_model_path: str = "./saved_model.pth"

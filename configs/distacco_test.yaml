@@ -1,0 +1,11 @@
+# Serve solo a far girare create_dataset.py sulle 11 foto di test, nello stesso formato tensori
+# del train (vedi configs/distacco.yaml, che le legge da qui per la valutazione). Non si usa
+# direttamente con train.py.
+degrado: Distacco
+
+data:
+  input_folder: ./images-and-masks/annotated/test
+  output_folder: ./images-and-masks/torch-data/distacco/test
+  resolution: [1024, 1024]
+  pbr_maps: [BaseColor]
+  use_only_notna: false

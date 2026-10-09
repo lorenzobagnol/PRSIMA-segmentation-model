@@ -1,0 +1,302 @@
+[Distacco] Nessun test_output_folder in config: valuto sul train set (solo per debug, non è un numero affidabile)
+  0%|          | 0/150 [00:00<?, ?it/s][Distacco] Epoch 1/150 - Loss: 1.0273, Dice Loss: 0.2227, BCE Loss: 0.8045
+[Distacco] Epoch 1/150 - IoU(train(!)): 0.4520  Precision: 0.5834  Recall: 0.6735  F1: 0.6158  (best IoU so far: 0.4520)
+  1%|          | 1/150 [01:21<3:21:24, 81.10s/it][Distacco] Epoch 2/150 - Loss: 0.9619, Dice Loss: 0.1928, BCE Loss: 0.7691
+[Distacco] Epoch 2/150 - IoU(train(!)): 0.4824  Precision: 0.5077  Recall: 0.8950  F1: 0.6444  (best IoU so far: 0.4824)
+  1%|▏         | 2/150 [02:42<3:20:40, 81.36s/it][Distacco] Epoch 3/150 - Loss: 0.9393, Dice Loss: 0.1868, BCE Loss: 0.7525
+[Distacco] Epoch 3/150 - IoU(train(!)): 0.6182  Precision: 0.6708  Recall: 0.8878  F1: 0.7611  (best IoU so far: 0.6182)
+  2%|▏         | 3/150 [04:04<3:20:06, 81.67s/it][Distacco] Epoch 4/150 - Loss: 0.9275, Dice Loss: 0.1846, BCE Loss: 0.7429
+[Distacco] Epoch 4/150 - IoU(train(!)): 0.4436  Precision: 0.4534  Recall: 0.9526  F1: 0.6078  (best IoU so far: 0.6182)
+  3%|▎         | 4/150 [05:24<3:17:25, 81.13s/it][Distacco] Epoch 5/150 - Loss: 0.9124, Dice Loss: 0.1811, BCE Loss: 0.7313
+[Distacco] Epoch 5/150 - IoU(train(!)): 0.5884  Precision: 0.6098  Recall: 0.9380  F1: 0.7354  (best IoU so far: 0.6182)
+  3%|▎         | 5/150 [06:46<3:16:38, 81.37s/it][Distacco] Epoch 6/150 - Loss: 0.9007, Dice Loss: 0.1777, BCE Loss: 0.7230
+[Distacco] Epoch 6/150 - IoU(train(!)): 0.6648  Precision: 0.7039  Recall: 0.9235  F1: 0.7943  (best IoU so far: 0.6648)
+  4%|▍         | 6/150 [08:08<3:15:14, 81.35s/it][Distacco] Epoch 7/150 - Loss: 0.8922, Dice Loss: 0.1772, BCE Loss: 0.7150
+[Distacco] Epoch 7/150 - IoU(train(!)): 0.7209  Precision: 0.8025  Recall: 0.8785  F1: 0.8349  (best IoU so far: 0.7209)
+  5%|▍         | 7/150 [09:29<3:13:52, 81.34s/it][Distacco] Epoch 8/150 - Loss: 0.8894, Dice Loss: 0.1775, BCE Loss: 0.7118
+[Distacco] Epoch 8/150 - IoU(train(!)): 0.7471  Precision: 0.8223  Recall: 0.8912  F1: 0.8522  (best IoU so far: 0.7471)
+  5%|▌         | 8/150 [10:47<3:10:12, 80.37s/it][Distacco] Epoch 9/150 - Loss: 0.8823, Dice Loss: 0.1739, BCE Loss: 0.7083
+[Distacco] Epoch 9/150 - IoU(train(!)): 0.7513  Precision: 0.8644  Recall: 0.8537  F1: 0.8566  (best IoU so far: 0.7513)
+  6%|▌         | 9/150 [12:03<3:05:30, 78.94s/it][Distacco] Epoch 10/150 - Loss: 0.8748, Dice Loss: 0.1725, BCE Loss: 0.7023
+[Distacco] Epoch 10/150 - IoU(train(!)): 0.6882  Precision: 0.7263  Recall: 0.9316  F1: 0.8138  (best IoU so far: 0.7513)
+  7%|▋         | 10/150 [13:20<3:02:36, 78.26s/it][Distacco] Epoch 11/150 - Loss: 0.8749, Dice Loss: 0.1736, BCE Loss: 0.7013
+[Distacco] Epoch 11/150 - IoU(train(!)): 0.7929  Precision: 0.8556  Recall: 0.9138  F1: 0.8828  (best IoU so far: 0.7929)
+  7%|▋         | 11/150 [14:37<3:00:30, 77.91s/it][Distacco] Epoch 12/150 - Loss: 0.8723, Dice Loss: 0.1724, BCE Loss: 0.6999
+[Distacco] Epoch 12/150 - IoU(train(!)): 0.7829  Precision: 0.8559  Recall: 0.9049  F1: 0.8767  (best IoU so far: 0.7929)
+  8%|▊         | 12/150 [15:54<2:58:38, 77.67s/it][Distacco] Epoch 13/150 - Loss: 0.8641, Dice Loss: 0.1708, BCE Loss: 0.6933
+[Distacco] Epoch 13/150 - IoU(train(!)): 0.7146  Precision: 0.7364  Recall: 0.9602  F1: 0.8315  (best IoU so far: 0.7929)
+  9%|▊         | 13/150 [17:09<2:55:50, 77.01s/it][Distacco] Epoch 14/150 - Loss: 0.8609, Dice Loss: 0.1685, BCE Loss: 0.6925
+[Distacco] Epoch 14/150 - IoU(train(!)): 0.7625  Precision: 0.7828  Recall: 0.9654  F1: 0.8626  (best IoU so far: 0.7929)
+  9%|▉         | 14/150 [18:26<2:54:07, 76.82s/it][Distacco] Epoch 15/150 - Loss: 0.8612, Dice Loss: 0.1706, BCE Loss: 0.6906
+[Distacco] Epoch 15/150 - IoU(train(!)): 0.7559  Precision: 0.8079  Recall: 0.9236  F1: 0.8588  (best IoU so far: 0.7929)
+ 10%|█         | 15/150 [19:44<2:53:43, 77.21s/it][Distacco] Epoch 16/150 - Loss: 0.8568, Dice Loss: 0.1688, BCE Loss: 0.6880
+[Distacco] Epoch 16/150 - IoU(train(!)): 0.7009  Precision: 0.7200  Recall: 0.9633  F1: 0.8223  (best IoU so far: 0.7929)
+ 11%|█         | 16/150 [21:03<2:53:26, 77.66s/it][Distacco] Epoch 17/150 - Loss: 0.8576, Dice Loss: 0.1687, BCE Loss: 0.6889
+[Distacco] Epoch 17/150 - IoU(train(!)): 0.7699  Precision: 0.8177  Recall: 0.9283  F1: 0.8666  (best IoU so far: 0.7929)
+ 11%|█▏        | 17/150 [22:19<2:50:58, 77.13s/it][Distacco] Epoch 18/150 - Loss: 0.8525, Dice Loss: 0.1669, BCE Loss: 0.6856
+[Distacco] Epoch 18/150 - IoU(train(!)): 0.7989  Precision: 0.8597  Recall: 0.9201  F1: 0.8865  (best IoU so far: 0.7989)
+ 12%|█▏        | 18/150 [23:35<2:49:10, 76.90s/it][Distacco] Epoch 19/150 - Loss: 0.8505, Dice Loss: 0.1683, BCE Loss: 0.6822
+[Distacco] Epoch 19/150 - IoU(train(!)): 0.8001  Precision: 0.9010  Recall: 0.8763  F1: 0.8854  (best IoU so far: 0.8001)
+ 13%|█▎        | 19/150 [24:52<2:47:49, 76.87s/it][Distacco] Epoch 20/150 - Loss: 0.8454, Dice Loss: 0.1647, BCE Loss: 0.6807
+[Distacco] Epoch 20/150 - IoU(train(!)): 0.7837  Precision: 0.8274  Recall: 0.9347  F1: 0.8763  (best IoU so far: 0.8001)
+ 13%|█▎        | 20/150 [26:08<2:46:14, 76.73s/it][Distacco] Epoch 21/150 - Loss: 0.8474, Dice Loss: 0.1665, BCE Loss: 0.6809
+[Distacco] Epoch 21/150 - IoU(train(!)): 0.6592  Precision: 0.6674  Recall: 0.9784  F1: 0.7898  (best IoU so far: 0.8001)
+ 14%|█▍        | 21/150 [27:26<2:45:32, 77.00s/it][Distacco] Epoch 22/150 - Loss: 0.8466, Dice Loss: 0.1665, BCE Loss: 0.6802
+[Distacco] Epoch 22/150 - IoU(train(!)): 0.8190  Precision: 0.8801  Recall: 0.9224  F1: 0.8995  (best IoU so far: 0.8190)
+ 15%|█▍        | 22/150 [28:42<2:43:50, 76.80s/it][Distacco] Epoch 23/150 - Loss: 0.8430, Dice Loss: 0.1653, BCE Loss: 0.6777
+[Distacco] Epoch 23/150 - IoU(train(!)): 0.8090  Precision: 0.8519  Recall: 0.9400  F1: 0.8928  (best IoU so far: 0.8190)
+ 15%|█▌        | 23/150 [30:01<2:44:00, 77.49s/it][Distacco] Epoch 24/150 - Loss: 0.8389, Dice Loss: 0.1639, BCE Loss: 0.6750
+[Distacco] Epoch 24/150 - IoU(train(!)): 0.8175  Precision: 0.8552  Recall: 0.9488  F1: 0.8972  (best IoU so far: 0.8190)
+ 16%|█▌        | 24/150 [31:21<2:43:58, 78.08s/it][Distacco] Epoch 25/150 - Loss: 0.8391, Dice Loss: 0.1649, BCE Loss: 0.6743
+[Distacco] Epoch 25/150 - IoU(train(!)): 0.8067  Precision: 0.8397  Recall: 0.9545  F1: 0.8912  (best IoU so far: 0.8190)
+ 17%|█▋        | 25/150 [32:36<2:40:49, 77.20s/it][Distacco] Epoch 26/150 - Loss: 0.8447, Dice Loss: 0.1660, BCE Loss: 0.6786
+[Distacco] Epoch 26/150 - IoU(train(!)): 0.8154  Precision: 0.8578  Recall: 0.9425  F1: 0.8974  (best IoU so far: 0.8190)
+ 17%|█▋        | 26/150 [33:52<2:39:10, 77.02s/it][Distacco] Epoch 27/150 - Loss: 0.8413, Dice Loss: 0.1653, BCE Loss: 0.6760
+[Distacco] Epoch 27/150 - IoU(train(!)): 0.8100  Precision: 0.8349  Recall: 0.9639  F1: 0.8939  (best IoU so far: 0.8190)
+ 18%|█▊        | 27/150 [35:09<2:37:51, 77.00s/it][Distacco] Epoch 28/150 - Loss: 0.8425, Dice Loss: 0.1655, BCE Loss: 0.6769
+[Distacco] Epoch 28/150 - IoU(train(!)): 0.7598  Precision: 0.7804  Recall: 0.9661  F1: 0.8609  (best IoU so far: 0.8190)
+ 19%|█▊        | 28/150 [36:26<2:36:05, 76.76s/it][Distacco] Epoch 29/150 - Loss: 0.8425, Dice Loss: 0.1680, BCE Loss: 0.6745
+[Distacco] Epoch 29/150 - IoU(train(!)): 0.8139  Precision: 0.8449  Recall: 0.9559  F1: 0.8959  (best IoU so far: 0.8190)
+ 19%|█▉        | 29/150 [37:43<2:34:56, 76.83s/it][Distacco] Epoch 30/150 - Loss: 0.8396, Dice Loss: 0.1642, BCE Loss: 0.6754
+[Distacco] Epoch 30/150 - IoU(train(!)): 0.8222  Precision: 0.8536  Recall: 0.9564  F1: 0.9011  (best IoU so far: 0.8222)
+ 20%|██        | 30/150 [38:58<2:33:04, 76.54s/it][Distacco] Epoch 31/150 - Loss: 0.8361, Dice Loss: 0.1645, BCE Loss: 0.6716
+[Distacco] Epoch 31/150 - IoU(train(!)): 0.8331  Precision: 0.8649  Recall: 0.9586  F1: 0.9078  (best IoU so far: 0.8331)
+ 21%|██        | 31/150 [40:15<2:32:04, 76.68s/it][Distacco] Epoch 32/150 - Loss: 0.8354, Dice Loss: 0.1639, BCE Loss: 0.6715
+[Distacco] Epoch 32/150 - IoU(train(!)): 0.8446  Precision: 0.8860  Recall: 0.9462  F1: 0.9144  (best IoU so far: 0.8446)
+ 21%|██▏       | 32/150 [41:32<2:30:38, 76.60s/it][Distacco] Epoch 33/150 - Loss: 0.8352, Dice Loss: 0.1644, BCE Loss: 0.6708
+[Distacco] Epoch 33/150 - IoU(train(!)): 0.8434  Precision: 0.8905  Recall: 0.9387  F1: 0.9132  (best IoU so far: 0.8446)
+ 22%|██▏       | 33/150 [42:48<2:28:59, 76.41s/it][Distacco] Epoch 34/150 - Loss: 0.8345, Dice Loss: 0.1627, BCE Loss: 0.6718
+[Distacco] Epoch 34/150 - IoU(train(!)): 0.7604  Precision: 0.7780  Recall: 0.9702  F1: 0.8614  (best IoU so far: 0.8446)
+ 23%|██▎       | 34/150 [44:05<2:28:27, 76.79s/it][Distacco] Epoch 35/150 - Loss: 0.8380, Dice Loss: 0.1650, BCE Loss: 0.6730
+[Distacco] Epoch 35/150 - IoU(train(!)): 0.8524  Precision: 0.9062  Recall: 0.9346  F1: 0.9195  (best IoU so far: 0.8524)
+ 23%|██▎       | 35/150 [45:22<2:26:52, 76.63s/it][Distacco] Epoch 36/150 - Loss: 0.8321, Dice Loss: 0.1634, BCE Loss: 0.6687
+[Distacco] Epoch 36/150 - IoU(train(!)): 0.8465  Precision: 0.8795  Recall: 0.9571  F1: 0.9162  (best IoU so far: 0.8524)
+ 24%|██▍       | 36/150 [46:38<2:25:37, 76.64s/it][Distacco] Epoch 37/150 - Loss: 0.8312, Dice Loss: 0.1619, BCE Loss: 0.6693
+[Distacco] Epoch 37/150 - IoU(train(!)): 0.8514  Precision: 0.8886  Recall: 0.9510  F1: 0.9184  (best IoU so far: 0.8524)
+ 25%|██▍       | 37/150 [47:55<2:24:21, 76.65s/it][Distacco] Epoch 38/150 - Loss: 0.8299, Dice Loss: 0.1630, BCE Loss: 0.6670
+[Distacco] Epoch 38/150 - IoU(train(!)): 0.8447  Precision: 0.8782  Recall: 0.9557  F1: 0.9145  (best IoU so far: 0.8524)
+ 25%|██▌       | 38/150 [49:13<2:23:43, 77.00s/it][Distacco] Epoch 39/150 - Loss: 0.8290, Dice Loss: 0.1620, BCE Loss: 0.6671
+[Distacco] Epoch 39/150 - IoU(train(!)): 0.8415  Precision: 0.8653  Recall: 0.9667  F1: 0.9122  (best IoU so far: 0.8524)
+ 26%|██▌       | 39/150 [50:33<2:24:20, 78.03s/it][Distacco] Epoch 40/150 - Loss: 0.8294, Dice Loss: 0.1620, BCE Loss: 0.6674
+[Distacco] Epoch 40/150 - IoU(train(!)): 0.8400  Precision: 0.8756  Recall: 0.9544  F1: 0.9125  (best IoU so far: 0.8524)
+ 27%|██▋       | 40/150 [51:50<2:22:17, 77.62s/it][Distacco] Epoch 41/150 - Loss: 0.8301, Dice Loss: 0.1627, BCE Loss: 0.6675
+[Distacco] Epoch 41/150 - IoU(train(!)): 0.8692  Precision: 0.9026  Recall: 0.9587  F1: 0.9289  (best IoU so far: 0.8692)
+ 27%|██▋       | 41/150 [53:06<2:20:05, 77.11s/it][Distacco] Epoch 42/150 - Loss: 0.8287, Dice Loss: 0.1616, BCE Loss: 0.6671
+[Distacco] Epoch 42/150 - IoU(train(!)): 0.8339  Precision: 0.8477  Recall: 0.9798  F1: 0.9077  (best IoU so far: 0.8692)
+ 28%|██▊       | 42/150 [54:24<2:19:07, 77.29s/it][Distacco] Epoch 43/150 - Loss: 0.8272, Dice Loss: 0.1616, BCE Loss: 0.6656
+[Distacco] Epoch 43/150 - IoU(train(!)): 0.8661  Precision: 0.8973  Recall: 0.9601  F1: 0.9275  (best IoU so far: 0.8692)
+ 29%|██▊       | 43/150 [55:41<2:17:39, 77.19s/it][Distacco] Epoch 44/150 - Loss: 0.8270, Dice Loss: 0.1613, BCE Loss: 0.6657
+[Distacco] Epoch 44/150 - IoU(train(!)): 0.8566  Precision: 0.8900  Recall: 0.9579  F1: 0.9219  (best IoU so far: 0.8692)
+ 29%|██▉       | 44/150 [56:59<2:16:47, 77.43s/it][Distacco] Epoch 45/150 - Loss: 0.8285, Dice Loss: 0.1620, BCE Loss: 0.6665
+[Distacco] Epoch 45/150 - IoU(train(!)): 0.8504  Precision: 0.8769  Recall: 0.9650  F1: 0.9184  (best IoU so far: 0.8692)
+ 30%|███       | 45/150 [58:16<2:15:20, 77.34s/it][Distacco] Epoch 46/150 - Loss: 0.8269, Dice Loss: 0.1613, BCE Loss: 0.6655
+[Distacco] Epoch 46/150 - IoU(train(!)): 0.8523  Precision: 0.8784  Recall: 0.9637  F1: 0.9186  (best IoU so far: 0.8692)
+ 31%|███       | 46/150 [59:32<2:13:36, 77.08s/it][Distacco] Epoch 47/150 - Loss: 0.8255, Dice Loss: 0.1610, BCE Loss: 0.6645
+[Distacco] Epoch 47/150 - IoU(train(!)): 0.8570  Precision: 0.8806  Recall: 0.9688  F1: 0.9217  (best IoU so far: 0.8692)
+ 31%|███▏      | 47/150 [1:00:52<2:13:55, 78.02s/it][Distacco] Epoch 48/150 - Loss: 0.8252, Dice Loss: 0.1605, BCE Loss: 0.6647
+[Distacco] Epoch 48/150 - IoU(train(!)): 0.8719  Precision: 0.8978  Recall: 0.9677  F1: 0.9307  (best IoU so far: 0.8719)
+ 32%|███▏      | 48/150 [1:02:09<2:11:58, 77.63s/it][Distacco] Epoch 49/150 - Loss: 0.8246, Dice Loss: 0.1617, BCE Loss: 0.6629
+[Distacco] Epoch 49/150 - IoU(train(!)): 0.8855  Precision: 0.9143  Recall: 0.9651  F1: 0.9386  (best IoU so far: 0.8855)
+ 33%|███▎      | 49/150 [1:03:26<2:10:23, 77.46s/it][Distacco] Epoch 50/150 - Loss: 0.8252, Dice Loss: 0.1606, BCE Loss: 0.6646
+[Distacco] Epoch 50/150 - IoU(train(!)): 0.8666  Precision: 0.8923  Recall: 0.9678  F1: 0.9278  (best IoU so far: 0.8855)
+ 33%|███▎      | 50/150 [1:04:43<2:08:50, 77.30s/it][Distacco] Epoch 51/150 - Loss: 0.8249, Dice Loss: 0.1609, BCE Loss: 0.6639
+[Distacco] Epoch 51/150 - IoU(train(!)): 0.8777  Precision: 0.9064  Recall: 0.9643  F1: 0.9342  (best IoU so far: 0.8855)
+ 34%|███▍      | 51/150 [1:05:59<2:06:44, 76.82s/it][Distacco] Epoch 52/150 - Loss: 0.8236, Dice Loss: 0.1606, BCE Loss: 0.6631
+[Distacco] Epoch 52/150 - IoU(train(!)): 0.8574  Precision: 0.9003  Recall: 0.9444  F1: 0.9199  (best IoU so far: 0.8855)
+ 35%|███▍      | 52/150 [1:07:15<2:05:12, 76.66s/it][Distacco] Epoch 53/150 - Loss: 0.8225, Dice Loss: 0.1606, BCE Loss: 0.6619
+[Distacco] Epoch 53/150 - IoU(train(!)): 0.8804  Precision: 0.9017  Recall: 0.9734  F1: 0.9359  (best IoU so far: 0.8855)
+ 35%|███▌      | 53/150 [1:08:32<2:03:59, 76.70s/it][Distacco] Epoch 54/150 - Loss: 0.8227, Dice Loss: 0.1603, BCE Loss: 0.6624
+[Distacco] Epoch 54/150 - IoU(train(!)): 0.8904  Precision: 0.9142  Recall: 0.9717  F1: 0.9418  (best IoU so far: 0.8904)
+ 36%|███▌      | 54/150 [1:09:50<2:03:19, 77.08s/it][Distacco] Epoch 55/150 - Loss: 0.8217, Dice Loss: 0.1600, BCE Loss: 0.6617
+[Distacco] Epoch 55/150 - IoU(train(!)): 0.8822  Precision: 0.9055  Recall: 0.9711  F1: 0.9369  (best IoU so far: 0.8904)
+ 37%|███▋      | 55/150 [1:11:09<2:03:07, 77.77s/it][Distacco] Epoch 56/150 - Loss: 0.8227, Dice Loss: 0.1601, BCE Loss: 0.6627
+[Distacco] Epoch 56/150 - IoU(train(!)): 0.8866  Precision: 0.9152  Recall: 0.9655  F1: 0.9394  (best IoU so far: 0.8904)
+ 37%|███▋      | 56/150 [1:12:27<2:02:02, 77.89s/it][Distacco] Epoch 57/150 - Loss: 0.8217, Dice Loss: 0.1598, BCE Loss: 0.6619
+[Distacco] Epoch 57/150 - IoU(train(!)): 0.8833  Precision: 0.9086  Recall: 0.9688  F1: 0.9374  (best IoU so far: 0.8904)
+ 38%|███▊      | 57/150 [1:13:46<2:01:02, 78.09s/it][Distacco] Epoch 58/150 - Loss: 0.8222, Dice Loss: 0.1603, BCE Loss: 0.6619
+[Distacco] Epoch 58/150 - IoU(train(!)): 0.8726  Precision: 0.8888  Recall: 0.9784  F1: 0.9309  (best IoU so far: 0.8904)
+ 39%|███▊      | 58/150 [1:15:01<1:58:28, 77.27s/it][Distacco] Epoch 59/150 - Loss: 0.8223, Dice Loss: 0.1602, BCE Loss: 0.6621
+[Distacco] Epoch 59/150 - IoU(train(!)): 0.8804  Precision: 0.9016  Recall: 0.9739  F1: 0.9360  (best IoU so far: 0.8904)
+ 39%|███▉      | 59/150 [1:16:18<1:56:52, 77.07s/it][Distacco] Epoch 60/150 - Loss: 0.8223, Dice Loss: 0.1602, BCE Loss: 0.6622
+[Distacco] Epoch 60/150 - IoU(train(!)): 0.8758  Precision: 0.8960  Recall: 0.9746  F1: 0.9333  (best IoU so far: 0.8904)
+ 40%|████      | 60/150 [1:17:35<1:55:31, 77.01s/it][Distacco] Epoch 61/150 - Loss: 0.8217, Dice Loss: 0.1597, BCE Loss: 0.6620
+[Distacco] Epoch 61/150 - IoU(train(!)): 0.8926  Precision: 0.9116  Recall: 0.9765  F1: 0.9427  (best IoU so far: 0.8926)
+ 41%|████      | 61/150 [1:18:52<1:54:25, 77.14s/it][Distacco] Epoch 62/150 - Loss: 0.8216, Dice Loss: 0.1594, BCE Loss: 0.6621
+[Distacco] Epoch 62/150 - IoU(train(!)): 0.8933  Precision: 0.9144  Recall: 0.9747  F1: 0.9433  (best IoU so far: 0.8933)
+ 41%|████▏     | 62/150 [1:20:09<1:52:54, 76.99s/it][Distacco] Epoch 63/150 - Loss: 0.8202, Dice Loss: 0.1596, BCE Loss: 0.6605
+[Distacco] Epoch 63/150 - IoU(train(!)): 0.8920  Precision: 0.9156  Recall: 0.9711  F1: 0.9422  (best IoU so far: 0.8933)
+ 42%|████▏     | 63/150 [1:21:26<1:51:42, 77.04s/it][Distacco] Epoch 64/150 - Loss: 0.8211, Dice Loss: 0.1599, BCE Loss: 0.6612
+[Distacco] Epoch 64/150 - IoU(train(!)): 0.9007  Precision: 0.9239  Recall: 0.9724  F1: 0.9475  (best IoU so far: 0.9007)
+ 43%|████▎     | 64/150 [1:22:44<1:50:48, 77.31s/it][Distacco] Epoch 65/150 - Loss: 0.8204, Dice Loss: 0.1596, BCE Loss: 0.6607
+[Distacco] Epoch 65/150 - IoU(train(!)): 0.8995  Precision: 0.9250  Recall: 0.9698  F1: 0.9467  (best IoU so far: 0.9007)
+ 43%|████▎     | 65/150 [1:24:02<1:49:42, 77.44s/it][Distacco] Epoch 66/150 - Loss: 0.8199, Dice Loss: 0.1596, BCE Loss: 0.6603
+[Distacco] Epoch 66/150 - IoU(train(!)): 0.8893  Precision: 0.9069  Recall: 0.9783  F1: 0.9410  (best IoU so far: 0.9007)
+ 44%|████▍     | 66/150 [1:25:18<1:48:06, 77.22s/it][Distacco] Epoch 67/150 - Loss: 0.8200, Dice Loss: 0.1595, BCE Loss: 0.6605
+[Distacco] Epoch 67/150 - IoU(train(!)): 0.8918  Precision: 0.9123  Recall: 0.9746  F1: 0.9423  (best IoU so far: 0.9007)
+ 45%|████▍     | 67/150 [1:26:35<1:46:31, 77.01s/it][Distacco] Epoch 68/150 - Loss: 0.8201, Dice Loss: 0.1597, BCE Loss: 0.6605
+[Distacco] Epoch 68/150 - IoU(train(!)): 0.8816  Precision: 0.9006  Recall: 0.9758  F1: 0.9364  (best IoU so far: 0.9007)
+ 45%|████▌     | 68/150 [1:27:51<1:45:04, 76.88s/it][Distacco] Epoch 69/150 - Loss: 0.8191, Dice Loss: 0.1591, BCE Loss: 0.6600
+[Distacco] Epoch 69/150 - IoU(train(!)): 0.9006  Precision: 0.9253  Recall: 0.9713  F1: 0.9474  (best IoU so far: 0.9007)
+ 46%|████▌     | 69/150 [1:29:08<1:43:31, 76.68s/it][Distacco] Epoch 70/150 - Loss: 0.8186, Dice Loss: 0.1593, BCE Loss: 0.6594
+[Distacco] Epoch 70/150 - IoU(train(!)): 0.8971  Precision: 0.9188  Recall: 0.9740  F1: 0.9453  (best IoU so far: 0.9007)
+ 47%|████▋     | 70/150 [1:30:24<1:42:10, 76.63s/it][Distacco] Epoch 71/150 - Loss: 0.8201, Dice Loss: 0.1595, BCE Loss: 0.6607
+[Distacco] Epoch 71/150 - IoU(train(!)): 0.8925  Precision: 0.9126  Recall: 0.9755  F1: 0.9428  (best IoU so far: 0.9007)
+ 47%|████▋     | 71/150 [1:31:40<1:40:28, 76.31s/it][Distacco] Epoch 72/150 - Loss: 0.8198, Dice Loss: 0.1592, BCE Loss: 0.6606
+[Distacco] Epoch 72/150 - IoU(train(!)): 0.9004  Precision: 0.9192  Recall: 0.9774  F1: 0.9472  (best IoU so far: 0.9007)
+ 48%|████▊     | 72/150 [1:32:56<1:39:13, 76.33s/it][Distacco] Epoch 73/150 - Loss: 0.8186, Dice Loss: 0.1594, BCE Loss: 0.6592
+[Distacco] Epoch 73/150 - IoU(train(!)): 0.8963  Precision: 0.9166  Recall: 0.9754  F1: 0.9449  (best IoU so far: 0.9007)
+ 49%|████▊     | 73/150 [1:34:13<1:38:04, 76.42s/it][Distacco] Epoch 74/150 - Loss: 0.8185, Dice Loss: 0.1590, BCE Loss: 0.6596
+[Distacco] Epoch 74/150 - IoU(train(!)): 0.8932  Precision: 0.9115  Recall: 0.9775  F1: 0.9431  (best IoU so far: 0.9007)
+ 49%|████▉     | 74/150 [1:35:29<1:36:37, 76.29s/it][Distacco] Epoch 75/150 - Loss: 0.8196, Dice Loss: 0.1595, BCE Loss: 0.6601
+[Distacco] Epoch 75/150 - IoU(train(!)): 0.9066  Precision: 0.9369  Recall: 0.9650  F1: 0.9506  (best IoU so far: 0.9066)
+ 50%|█████     | 75/150 [1:36:46<1:35:41, 76.55s/it][Distacco] Epoch 76/150 - Loss: 0.8198, Dice Loss: 0.1595, BCE Loss: 0.6603
+[Distacco] Epoch 76/150 - IoU(train(!)): 0.8980  Precision: 0.9195  Recall: 0.9745  F1: 0.9458  (best IoU so far: 0.9066)
+ 51%|█████     | 76/150 [1:38:02<1:34:15, 76.43s/it][Distacco] Epoch 77/150 - Loss: 0.8183, Dice Loss: 0.1595, BCE Loss: 0.6588
+[Distacco] Epoch 77/150 - IoU(train(!)): 0.9013  Precision: 0.9267  Recall: 0.9703  F1: 0.9476  (best IoU so far: 0.9066)
+ 51%|█████▏    | 77/150 [1:39:20<1:33:31, 76.87s/it][Distacco] Epoch 78/150 - Loss: 0.8200, Dice Loss: 0.1593, BCE Loss: 0.6606
+[Distacco] Epoch 78/150 - IoU(train(!)): 0.8977  Precision: 0.9130  Recall: 0.9815  F1: 0.9458  (best IoU so far: 0.9066)
+ 52%|█████▏    | 78/150 [1:40:41<1:33:36, 78.00s/it][Distacco] Epoch 79/150 - Loss: 0.8181, Dice Loss: 0.1589, BCE Loss: 0.6592
+[Distacco] Epoch 79/150 - IoU(train(!)): 0.8885  Precision: 0.9099  Recall: 0.9739  F1: 0.9403  (best IoU so far: 0.9066)
+ 53%|█████▎    | 79/150 [1:42:01<1:33:08, 78.71s/it][Distacco] Epoch 80/150 - Loss: 0.8185, Dice Loss: 0.1588, BCE Loss: 0.6597
+[Distacco] Epoch 80/150 - IoU(train(!)): 0.9110  Precision: 0.9314  Recall: 0.9764  F1: 0.9532  (best IoU so far: 0.9110)
+ 53%|█████▎    | 80/150 [1:43:22<1:32:48, 79.55s/it][Distacco] Epoch 81/150 - Loss: 0.8178, Dice Loss: 0.1591, BCE Loss: 0.6587
+[Distacco] Epoch 81/150 - IoU(train(!)): 0.9081  Precision: 0.9295  Recall: 0.9748  F1: 0.9514  (best IoU so far: 0.9110)
+ 54%|█████▍    | 81/150 [1:44:43<1:31:45, 79.78s/it][Distacco] Epoch 82/150 - Loss: 0.8176, Dice Loss: 0.1588, BCE Loss: 0.6588
+[Distacco] Epoch 82/150 - IoU(train(!)): 0.9052  Precision: 0.9226  Recall: 0.9794  F1: 0.9500  (best IoU so far: 0.9110)
+ 55%|█████▍    | 82/150 [1:46:04<1:30:59, 80.29s/it][Distacco] Epoch 83/150 - Loss: 0.8180, Dice Loss: 0.1588, BCE Loss: 0.6592
+[Distacco] Epoch 83/150 - IoU(train(!)): 0.9065  Precision: 0.9246  Recall: 0.9786  F1: 0.9508  (best IoU so far: 0.9110)
+ 55%|█████▌    | 83/150 [1:47:26<1:29:59, 80.59s/it][Distacco] Epoch 84/150 - Loss: 0.8180, Dice Loss: 0.1590, BCE Loss: 0.6590
+[Distacco] Epoch 84/150 - IoU(train(!)): 0.9019  Precision: 0.9184  Recall: 0.9803  F1: 0.9479  (best IoU so far: 0.9110)
+ 56%|█████▌    | 84/150 [1:48:47<1:28:55, 80.83s/it][Distacco] Epoch 85/150 - Loss: 0.8175, Dice Loss: 0.1590, BCE Loss: 0.6586
+[Distacco] Epoch 85/150 - IoU(train(!)): 0.9079  Precision: 0.9248  Recall: 0.9801  F1: 0.9515  (best IoU so far: 0.9110)
+ 57%|█████▋    | 85/150 [1:50:08<1:27:30, 80.78s/it][Distacco] Epoch 86/150 - Loss: 0.8172, Dice Loss: 0.1588, BCE Loss: 0.6584
+[Distacco] Epoch 86/150 - IoU(train(!)): 0.9074  Precision: 0.9272  Recall: 0.9764  F1: 0.9509  (best IoU so far: 0.9110)
+ 57%|█████▋    | 86/150 [1:51:28<1:26:07, 80.74s/it][Distacco] Epoch 87/150 - Loss: 0.8170, Dice Loss: 0.1585, BCE Loss: 0.6586
+[Distacco] Epoch 87/150 - IoU(train(!)): 0.9158  Precision: 0.9338  Recall: 0.9793  F1: 0.9559  (best IoU so far: 0.9158)
+ 58%|█████▊    | 87/150 [1:52:48<1:24:37, 80.59s/it][Distacco] Epoch 88/150 - Loss: 0.8181, Dice Loss: 0.1588, BCE Loss: 0.6593
+[Distacco] Epoch 88/150 - IoU(train(!)): 0.9115  Precision: 0.9280  Recall: 0.9807  F1: 0.9535  (best IoU so far: 0.9158)
+ 59%|█████▊    | 88/150 [1:54:04<1:21:47, 79.15s/it][Distacco] Epoch 89/150 - Loss: 0.8183, Dice Loss: 0.1589, BCE Loss: 0.6595
+[Distacco] Epoch 89/150 - IoU(train(!)): 0.9063  Precision: 0.9242  Recall: 0.9788  F1: 0.9506  (best IoU so far: 0.9158)
+ 59%|█████▉    | 89/150 [1:55:21<1:19:52, 78.56s/it][Distacco] Epoch 90/150 - Loss: 0.8175, Dice Loss: 0.1589, BCE Loss: 0.6586
+[Distacco] Epoch 90/150 - IoU(train(!)): 0.9181  Precision: 0.9373  Recall: 0.9780  F1: 0.9572  (best IoU so far: 0.9181)
+ 60%|██████    | 90/150 [1:56:38<1:17:57, 77.96s/it][Distacco] Epoch 91/150 - Loss: 0.8177, Dice Loss: 0.1587, BCE Loss: 0.6590
+[Distacco] Epoch 91/150 - IoU(train(!)): 0.9113  Precision: 0.9294  Recall: 0.9790  F1: 0.9533  (best IoU so far: 0.9181)
+ 61%|██████    | 91/150 [1:57:55<1:16:14, 77.53s/it][Distacco] Epoch 92/150 - Loss: 0.8181, Dice Loss: 0.1585, BCE Loss: 0.6596
+[Distacco] Epoch 92/150 - IoU(train(!)): 0.9102  Precision: 0.9263  Recall: 0.9812  F1: 0.9528  (best IoU so far: 0.9181)
+ 61%|██████▏   | 92/150 [1:59:11<1:14:40, 77.25s/it][Distacco] Epoch 93/150 - Loss: 0.8177, Dice Loss: 0.1587, BCE Loss: 0.6590
+[Distacco] Epoch 93/150 - IoU(train(!)): 0.9136  Precision: 0.9320  Recall: 0.9787  F1: 0.9547  (best IoU so far: 0.9181)
+ 62%|██████▏   | 93/150 [2:00:31<1:14:05, 78.00s/it][Distacco] Epoch 94/150 - Loss: 0.8173, Dice Loss: 0.1590, BCE Loss: 0.6582
+[Distacco] Epoch 94/150 - IoU(train(!)): 0.9064  Precision: 0.9184  Recall: 0.9856  F1: 0.9507  (best IoU so far: 0.9181)
+ 63%|██████▎   | 94/150 [2:01:48<1:12:37, 77.81s/it][Distacco] Epoch 95/150 - Loss: 0.8170, Dice Loss: 0.1584, BCE Loss: 0.6586
+[Distacco] Epoch 95/150 - IoU(train(!)): 0.9094  Precision: 0.9274  Recall: 0.9789  F1: 0.9523  (best IoU so far: 0.9181)
+ 63%|██████▎   | 95/150 [2:03:05<1:10:54, 77.35s/it][Distacco] Epoch 96/150 - Loss: 0.8176, Dice Loss: 0.1589, BCE Loss: 0.6587
+[Distacco] Epoch 96/150 - IoU(train(!)): 0.9045  Precision: 0.9222  Recall: 0.9788  F1: 0.9495  (best IoU so far: 0.9181)
+ 64%|██████▍   | 96/150 [2:04:23<1:09:48, 77.56s/it][Distacco] Epoch 97/150 - Loss: 0.8176, Dice Loss: 0.1587, BCE Loss: 0.6589
+[Distacco] Epoch 97/150 - IoU(train(!)): 0.9127  Precision: 0.9263  Recall: 0.9840  F1: 0.9542  (best IoU so far: 0.9181)
+ 65%|██████▍   | 97/150 [2:05:38<1:08:02, 77.03s/it][Distacco] Epoch 98/150 - Loss: 0.8164, Dice Loss: 0.1589, BCE Loss: 0.6576
+[Distacco] Epoch 98/150 - IoU(train(!)): 0.9151  Precision: 0.9285  Recall: 0.9844  F1: 0.9555  (best IoU so far: 0.9181)
+ 65%|██████▌   | 98/150 [2:06:56<1:06:59, 77.29s/it][Distacco] Epoch 99/150 - Loss: 0.8169, Dice Loss: 0.1584, BCE Loss: 0.6585
+[Distacco] Epoch 99/150 - IoU(train(!)): 0.9004  Precision: 0.9190  Recall: 0.9772  F1: 0.9469  (best IoU so far: 0.9181)
+ 66%|██████▌   | 99/150 [2:08:13<1:05:31, 77.10s/it][Distacco] Epoch 100/150 - Loss: 0.8173, Dice Loss: 0.1585, BCE Loss: 0.6587
+[Distacco] Epoch 100/150 - IoU(train(!)): 0.9075  Precision: 0.9199  Recall: 0.9852  F1: 0.9512  (best IoU so far: 0.9181)
+ 67%|██████▋   | 100/150 [2:09:30<1:04:12, 77.05s/it][Distacco] Epoch 101/150 - Loss: 0.8173, Dice Loss: 0.1588, BCE Loss: 0.6585
+[Distacco] Epoch 101/150 - IoU(train(!)): 0.9096  Precision: 0.9302  Recall: 0.9753  F1: 0.9522  (best IoU so far: 0.9181)
+ 67%|██████▋   | 101/150 [2:10:47<1:02:51, 76.98s/it][Distacco] Epoch 102/150 - Loss: 0.8162, Dice Loss: 0.1585, BCE Loss: 0.6578
+[Distacco] Epoch 102/150 - IoU(train(!)): 0.9156  Precision: 0.9307  Recall: 0.9825  F1: 0.9558  (best IoU so far: 0.9181)
+ 68%|██████▊   | 102/150 [2:12:03<1:01:26, 76.81s/it][Distacco] Epoch 103/150 - Loss: 0.8167, Dice Loss: 0.1587, BCE Loss: 0.6580
+[Distacco] Epoch 103/150 - IoU(train(!)): 0.9146  Precision: 0.9296  Recall: 0.9825  F1: 0.9553  (best IoU so far: 0.9181)
+ 69%|██████▊   | 103/150 [2:13:20<1:00:07, 76.76s/it][Distacco] Epoch 104/150 - Loss: 0.8163, Dice Loss: 0.1584, BCE Loss: 0.6579
+[Distacco] Epoch 104/150 - IoU(train(!)): 0.9200  Precision: 0.9361  Recall: 0.9815  F1: 0.9582  (best IoU so far: 0.9200)
+ 69%|██████▉   | 104/150 [2:14:37<58:53, 76.81s/it]  [Distacco] Epoch 105/150 - Loss: 0.8164, Dice Loss: 0.1583, BCE Loss: 0.6581
+[Distacco] Epoch 105/150 - IoU(train(!)): 0.9176  Precision: 0.9321  Recall: 0.9830  F1: 0.9568  (best IoU so far: 0.9200)
+ 70%|███████   | 105/150 [2:15:52<57:23, 76.52s/it][Distacco] Epoch 106/150 - Loss: 0.8167, Dice Loss: 0.1587, BCE Loss: 0.6580
+[Distacco] Epoch 106/150 - IoU(train(!)): 0.9185  Precision: 0.9367  Recall: 0.9791  F1: 0.9573  (best IoU so far: 0.9200)
+ 71%|███████   | 106/150 [2:17:09<56:05, 76.49s/it][Distacco] Epoch 107/150 - Loss: 0.8164, Dice Loss: 0.1583, BCE Loss: 0.6581
+[Distacco] Epoch 107/150 - IoU(train(!)): 0.9176  Precision: 0.9342  Recall: 0.9808  F1: 0.9569  (best IoU so far: 0.9200)
+ 71%|███████▏  | 107/150 [2:18:25<54:39, 76.27s/it][Distacco] Epoch 108/150 - Loss: 0.8164, Dice Loss: 0.1586, BCE Loss: 0.6578
+[Distacco] Epoch 108/150 - IoU(train(!)): 0.9199  Precision: 0.9359  Recall: 0.9815  F1: 0.9581  (best IoU so far: 0.9200)
+ 72%|███████▏  | 108/150 [2:19:42<53:30, 76.45s/it][Distacco] Epoch 109/150 - Loss: 0.8165, Dice Loss: 0.1583, BCE Loss: 0.6582
+[Distacco] Epoch 109/150 - IoU(train(!)): 0.9202  Precision: 0.9376  Recall: 0.9801  F1: 0.9583  (best IoU so far: 0.9202)
+ 73%|███████▎  | 109/150 [2:21:00<52:35, 76.96s/it][Distacco] Epoch 110/150 - Loss: 0.8155, Dice Loss: 0.1583, BCE Loss: 0.6571
+[Distacco] Epoch 110/150 - IoU(train(!)): 0.9126  Precision: 0.9270  Recall: 0.9826  F1: 0.9539  (best IoU so far: 0.9202)
+ 73%|███████▎  | 110/150 [2:22:17<51:19, 77.00s/it][Distacco] Epoch 111/150 - Loss: 0.8161, Dice Loss: 0.1584, BCE Loss: 0.6577
+[Distacco] Epoch 111/150 - IoU(train(!)): 0.9214  Precision: 0.9373  Recall: 0.9818  F1: 0.9590  (best IoU so far: 0.9214)
+ 74%|███████▍  | 111/150 [2:23:34<50:07, 77.10s/it][Distacco] Epoch 112/150 - Loss: 0.8161, Dice Loss: 0.1585, BCE Loss: 0.6576
+[Distacco] Epoch 112/150 - IoU(train(!)): 0.9178  Precision: 0.9341  Recall: 0.9812  F1: 0.9569  (best IoU so far: 0.9214)
+ 75%|███████▍  | 112/150 [2:24:50<48:41, 76.88s/it][Distacco] Epoch 113/150 - Loss: 0.8166, Dice Loss: 0.1586, BCE Loss: 0.6580
+[Distacco] Epoch 113/150 - IoU(train(!)): 0.9142  Precision: 0.9309  Recall: 0.9803  F1: 0.9549  (best IoU so far: 0.9214)
+ 75%|███████▌  | 113/150 [2:26:08<47:27, 76.96s/it][Distacco] Epoch 114/150 - Loss: 0.8163, Dice Loss: 0.1582, BCE Loss: 0.6581
+[Distacco] Epoch 114/150 - IoU(train(!)): 0.9132  Precision: 0.9270  Recall: 0.9838  F1: 0.9544  (best IoU so far: 0.9214)
+ 76%|███████▌  | 114/150 [2:27:25<46:10, 76.95s/it][Distacco] Epoch 115/150 - Loss: 0.8155, Dice Loss: 0.1584, BCE Loss: 0.6571
+[Distacco] Epoch 115/150 - IoU(train(!)): 0.9233  Precision: 0.9399  Recall: 0.9812  F1: 0.9600  (best IoU so far: 0.9233)
+ 77%|███████▋  | 115/150 [2:28:41<44:50, 76.88s/it][Distacco] Epoch 116/150 - Loss: 0.8164, Dice Loss: 0.1584, BCE Loss: 0.6580
+[Distacco] Epoch 116/150 - IoU(train(!)): 0.9121  Precision: 0.9285  Recall: 0.9808  F1: 0.9538  (best IoU so far: 0.9233)
+ 77%|███████▋  | 116/150 [2:30:00<43:48, 77.32s/it][Distacco] Epoch 117/150 - Loss: 0.8158, Dice Loss: 0.1582, BCE Loss: 0.6576
+[Distacco] Epoch 117/150 - IoU(train(!)): 0.9164  Precision: 0.9299  Recall: 0.9844  F1: 0.9561  (best IoU so far: 0.9233)
+ 78%|███████▊  | 117/150 [2:31:18<42:40, 77.60s/it][Distacco] Epoch 118/150 - Loss: 0.8155, Dice Loss: 0.1582, BCE Loss: 0.6573
+[Distacco] Epoch 118/150 - IoU(train(!)): 0.9138  Precision: 0.9254  Recall: 0.9863  F1: 0.9547  (best IoU so far: 0.9233)
+ 79%|███████▊  | 118/150 [2:32:34<41:10, 77.20s/it][Distacco] Epoch 119/150 - Loss: 0.8156, Dice Loss: 0.1583, BCE Loss: 0.6573
+[Distacco] Epoch 119/150 - IoU(train(!)): 0.9195  Precision: 0.9362  Recall: 0.9808  F1: 0.9579  (best IoU so far: 0.9233)
+ 79%|███████▉  | 119/150 [2:33:49<39:35, 76.64s/it][Distacco] Epoch 120/150 - Loss: 0.8158, Dice Loss: 0.1582, BCE Loss: 0.6575
+[Distacco] Epoch 120/150 - IoU(train(!)): 0.9184  Precision: 0.9336  Recall: 0.9824  F1: 0.9573  (best IoU so far: 0.9233)
+ 80%|████████  | 120/150 [2:35:06<38:21, 76.72s/it][Distacco] Epoch 121/150 - Loss: 0.8161, Dice Loss: 0.1584, BCE Loss: 0.6578
+[Distacco] Epoch 121/150 - IoU(train(!)): 0.9163  Precision: 0.9312  Recall: 0.9819  F1: 0.9557  (best IoU so far: 0.9233)
+ 81%|████████  | 121/150 [2:36:24<37:12, 76.98s/it][Distacco] Epoch 122/150 - Loss: 0.8158, Dice Loss: 0.1582, BCE Loss: 0.6576
+[Distacco] Epoch 122/150 - IoU(train(!)): 0.9140  Precision: 0.9304  Recall: 0.9809  F1: 0.9548  (best IoU so far: 0.9233)
+ 81%|████████▏ | 122/150 [2:37:41<35:59, 77.13s/it][Distacco] Epoch 123/150 - Loss: 0.8163, Dice Loss: 0.1583, BCE Loss: 0.6580
+[Distacco] Epoch 123/150 - IoU(train(!)): 0.9196  Precision: 0.9343  Recall: 0.9829  F1: 0.9579  (best IoU so far: 0.9233)
+ 82%|████████▏ | 123/150 [2:38:58<34:39, 77.03s/it][Distacco] Epoch 124/150 - Loss: 0.8155, Dice Loss: 0.1583, BCE Loss: 0.6573
+[Distacco] Epoch 124/150 - IoU(train(!)): 0.9199  Precision: 0.9349  Recall: 0.9827  F1: 0.9581  (best IoU so far: 0.9233)
+ 83%|████████▎ | 124/150 [2:40:18<33:44, 77.86s/it][Distacco] Epoch 125/150 - Loss: 0.8147, Dice Loss: 0.1581, BCE Loss: 0.6566
+[Distacco] Epoch 125/150 - IoU(train(!)): 0.9199  Precision: 0.9359  Recall: 0.9815  F1: 0.9581  (best IoU so far: 0.9233)
+ 83%|████████▎ | 125/150 [2:41:35<32:20, 77.64s/it][Distacco] Epoch 126/150 - Loss: 0.8167, Dice Loss: 0.1584, BCE Loss: 0.6583
+[Distacco] Epoch 126/150 - IoU(train(!)): 0.9159  Precision: 0.9307  Recall: 0.9828  F1: 0.9559  (best IoU so far: 0.9233)
+ 84%|████████▍ | 126/150 [2:42:52<30:59, 77.48s/it][Distacco] Epoch 127/150 - Loss: 0.8160, Dice Loss: 0.1583, BCE Loss: 0.6577
+[Distacco] Epoch 127/150 - IoU(train(!)): 0.9189  Precision: 0.9351  Recall: 0.9812  F1: 0.9576  (best IoU so far: 0.9233)
+ 85%|████████▍ | 127/150 [2:44:11<29:51, 77.91s/it][Distacco] Epoch 128/150 - Loss: 0.8160, Dice Loss: 0.1582, BCE Loss: 0.6578
+[Distacco] Epoch 128/150 - IoU(train(!)): 0.9212  Precision: 0.9352  Recall: 0.9836  F1: 0.9587  (best IoU so far: 0.9233)
+ 85%|████████▌ | 128/150 [2:45:29<28:30, 77.74s/it][Distacco] Epoch 129/150 - Loss: 0.8154, Dice Loss: 0.1581, BCE Loss: 0.6573
+[Distacco] Epoch 129/150 - IoU(train(!)): 0.9124  Precision: 0.9272  Recall: 0.9821  F1: 0.9537  (best IoU so far: 0.9233)
+ 86%|████████▌ | 129/150 [2:46:45<27:06, 77.47s/it][Distacco] Epoch 130/150 - Loss: 0.8156, Dice Loss: 0.1584, BCE Loss: 0.6571
+[Distacco] Epoch 130/150 - IoU(train(!)): 0.9187  Precision: 0.9333  Recall: 0.9829  F1: 0.9573  (best IoU so far: 0.9233)
+ 87%|████████▋ | 130/150 [2:48:02<25:45, 77.29s/it][Distacco] Epoch 131/150 - Loss: 0.8160, Dice Loss: 0.1582, BCE Loss: 0.6578
+[Distacco] Epoch 131/150 - IoU(train(!)): 0.9186  Precision: 0.9318  Recall: 0.9847  F1: 0.9574  (best IoU so far: 0.9233)
+ 87%|████████▋ | 131/150 [2:49:20<24:30, 77.41s/it][Distacco] Epoch 132/150 - Loss: 0.8154, Dice Loss: 0.1585, BCE Loss: 0.6570
+[Distacco] Epoch 132/150 - IoU(train(!)): 0.9170  Precision: 0.9333  Recall: 0.9812  F1: 0.9566  (best IoU so far: 0.9233)
+ 88%|████████▊ | 132/150 [2:50:38<23:15, 77.53s/it][Distacco] Epoch 133/150 - Loss: 0.8162, Dice Loss: 0.1583, BCE Loss: 0.6579
+[Distacco] Epoch 133/150 - IoU(train(!)): 0.9203  Precision: 0.9370  Recall: 0.9809  F1: 0.9584  (best IoU so far: 0.9233)
+ 89%|████████▊ | 133/150 [2:51:54<21:52, 77.22s/it][Distacco] Epoch 134/150 - Loss: 0.8154, Dice Loss: 0.1580, BCE Loss: 0.6574
+[Distacco] Epoch 134/150 - IoU(train(!)): 0.9238  Precision: 0.9396  Recall: 0.9821  F1: 0.9603  (best IoU so far: 0.9238)
+ 89%|████████▉ | 134/150 [2:53:11<20:34, 77.14s/it][Distacco] Epoch 135/150 - Loss: 0.8151, Dice Loss: 0.1581, BCE Loss: 0.6570
+[Distacco] Epoch 135/150 - IoU(train(!)): 0.9200  Precision: 0.9356  Recall: 0.9819  F1: 0.9580  (best IoU so far: 0.9238)
+ 90%|█████████ | 135/150 [2:54:27<19:12, 76.86s/it][Distacco] Epoch 136/150 - Loss: 0.8157, Dice Loss: 0.1581, BCE Loss: 0.6576
+[Distacco] Epoch 136/150 - IoU(train(!)): 0.9125  Precision: 0.9298  Recall: 0.9796  F1: 0.9539  (best IoU so far: 0.9238)
+ 91%|█████████ | 136/150 [2:55:44<17:56, 76.92s/it][Distacco] Epoch 137/150 - Loss: 0.8161, Dice Loss: 0.1581, BCE Loss: 0.6580
+[Distacco] Epoch 137/150 - IoU(train(!)): 0.9147  Precision: 0.9315  Recall: 0.9803  F1: 0.9552  (best IoU so far: 0.9238)
+ 91%|█████████▏| 137/150 [2:57:02<16:44, 77.24s/it][Distacco] Epoch 138/150 - Loss: 0.8173, Dice Loss: 0.1587, BCE Loss: 0.6585
+[Distacco] Epoch 138/150 - IoU(train(!)): 0.9166  Precision: 0.9299  Recall: 0.9845  F1: 0.9562  (best IoU so far: 0.9238)
+ 92%|█████████▏| 138/150 [2:58:23<15:38, 78.24s/it][Distacco] Epoch 139/150 - Loss: 0.8152, Dice Loss: 0.1582, BCE Loss: 0.6570
+[Distacco] Epoch 139/150 - IoU(train(!)): 0.9174  Precision: 0.9311  Recall: 0.9841  F1: 0.9567  (best IoU so far: 0.9238)
+ 93%|█████████▎| 139/150 [2:59:43<14:26, 78.81s/it][Distacco] Epoch 140/150 - Loss: 0.8162, Dice Loss: 0.1581, BCE Loss: 0.6580
+[Distacco] Epoch 140/150 - IoU(train(!)): 0.9122  Precision: 0.9257  Recall: 0.9836  F1: 0.9534  (best IoU so far: 0.9238)
+ 93%|█████████▎| 140/150 [3:01:03<13:11, 79.18s/it][Distacco] Epoch 141/150 - Loss: 0.8154, Dice Loss: 0.1582, BCE Loss: 0.6572
+[Distacco] Epoch 141/150 - IoU(train(!)): 0.9170  Precision: 0.9308  Recall: 0.9837  F1: 0.9563  (best IoU so far: 0.9238)
+ 94%|█████████▍| 141/150 [3:02:22<11:51, 79.03s/it][Distacco] Epoch 142/150 - Loss: 0.8168, Dice Loss: 0.1583, BCE Loss: 0.6585
+[Distacco] Epoch 142/150 - IoU(train(!)): 0.9196  Precision: 0.9368  Recall: 0.9803  F1: 0.9579  (best IoU so far: 0.9238)
+ 95%|█████████▍| 142/150 [3:03:42<10:35, 79.47s/it][Distacco] Epoch 143/150 - Loss: 0.8157, Dice Loss: 0.1584, BCE Loss: 0.6573
+[Distacco] Epoch 143/150 - IoU(train(!)): 0.9219  Precision: 0.9379  Recall: 0.9817  F1: 0.9592  (best IoU so far: 0.9238)
+ 95%|█████████▌| 143/150 [3:05:02<09:17, 79.60s/it][Distacco] Epoch 144/150 - Loss: 0.8153, Dice Loss: 0.1580, BCE Loss: 0.6572
+[Distacco] Epoch 144/150 - IoU(train(!)): 0.9206  Precision: 0.9357  Recall: 0.9826  F1: 0.9584  (best IoU so far: 0.9238)
+ 96%|█████████▌| 144/150 [3:06:22<07:58, 79.68s/it][Distacco] Epoch 145/150 - Loss: 0.8169, Dice Loss: 0.1582, BCE Loss: 0.6587
+[Distacco] Epoch 145/150 - IoU(train(!)): 0.9189  Precision: 0.9326  Recall: 0.9840  F1: 0.9575  (best IoU so far: 0.9238)
+ 97%|█████████▋| 145/150 [3:07:42<06:39, 79.81s/it][Distacco] Epoch 146/150 - Loss: 0.8150, Dice Loss: 0.1581, BCE Loss: 0.6569
+[Distacco] Epoch 146/150 - IoU(train(!)): 0.9162  Precision: 0.9328  Recall: 0.9806  F1: 0.9559  (best IoU so far: 0.9238)
+ 97%|█████████▋| 146/150 [3:09:03<05:19, 79.96s/it][Distacco] Epoch 147/150 - Loss: 0.8156, Dice Loss: 0.1582, BCE Loss: 0.6574
+[Distacco] Epoch 147/150 - IoU(train(!)): 0.9200  Precision: 0.9349  Recall: 0.9828  F1: 0.9581  (best IoU so far: 0.9238)
+ 98%|█████████▊| 147/150 [3:10:23<03:59, 80.00s/it][Distacco] Epoch 148/150 - Loss: 0.8159, Dice Loss: 0.1579, BCE Loss: 0.6579
+[Distacco] Epoch 148/150 - IoU(train(!)): 0.9161  Precision: 0.9323  Recall: 0.9811  F1: 0.9560  (best IoU so far: 0.9238)
+ 99%|█████████▊| 148/150 [3:11:43<02:40, 80.22s/it][Distacco] Epoch 149/150 - Loss: 0.8158, Dice Loss: 0.1582, BCE Loss: 0.6576
+[Distacco] Epoch 149/150 - IoU(train(!)): 0.9209  Precision: 0.9372  Recall: 0.9814  F1: 0.9587  (best IoU so far: 0.9238)
+ 99%|█████████▉| 149/150 [3:13:03<01:20, 80.17s/it][Distacco] Epoch 150/150 - Loss: 0.8151, Dice Loss: 0.1580, BCE Loss: 0.6571
+[Distacco] Epoch 150/150 - IoU(train(!)): 0.9210  Precision: 0.9368  Recall: 0.9818  F1: 0.9587  (best IoU so far: 0.9238)
+100%|██████████| 150/150 [3:14:24<00:00, 80.18s/it]100%|██████████| 150/150 [3:14:24<00:00, 77.76s/it]

@@ -1,13 +1,25 @@
-# Distacco: fenomeno a bassa frequenza/basso contrasto, segnale piu' cromatico che
-# geometrico -> niente Normal, si usa il colore (+ AO come indizio di profondita' locale).
+# Distacco su dataset annotato a mano (SAM 3 + correzione, vedi annotation/), non più
+# pseudo-label. Solo BaseColor: niente mappe PBR per queste foto. Risoluzione 1024, come le
+# cavillature: le foto sorgente sono grandi (fino a 2048px lato lungo) e i distacchi vanno da
+# piccole lacune a superfici estese, quindi vale la pena tenere più dettaglio del 512 usato per
+# le pseudo-label.
+#
+# Giro 2026-10-06: niente test_output_folder di proposito. Le 8 immagini di test del giro
+# precedente (IoU 0.8366) erano le più difficili, annotate a mano da zero senza assistenza del
+# modello, e sono state rimesse in train per usare tutti i 76 dati disponibili. Un nuovo test
+# set verra' annotato su foto non ancora viste, quindi qui non c'e' una metrica affidabile: il
+# checkpoint _best.pth di questo giro segue l'IoU calcolato sul train stesso (vedi avviso di
+# train.py), utile solo per controllare che non stia divergendo, non per scegliere l'epoca.
 degrado: Distacco
 
 data:
-  input_folder: ./images-and-masks/raw-data
-  output_folder: ./images-and-masks/torch-data/distacco
+  input_folder: ./images-and-masks/annotated/train
+  output_folder: ./images-and-masks/torch-data/distacco/train
   resolution: [1024, 1024]
-  pbr_maps: [BaseColor, AO]
-  use_only_notna: true
+  pbr_maps: [BaseColor]
+  # false: sono tutte foto annotate apposta per Distacco (non un raw-data misto con altri
+  # degradi), quindi le poche maschere vuote sono negativi verificati a mano, non scarti.
+  use_only_notna: false
 
 model:
   arch: unet
@@ -17,6 +29,7 @@ model:
 train:
   batch_size: 4
   lr: 0.0001
-  epochs: 50
+  weight_decay: 0.0001
+  epochs: 150
   device: cuda
   output_model_path: ./models/distacco.pth

@@ -1,0 +1,3 @@
+#!include:.dockerignore
+# Weights are downloaded inside Cloud Build, never uploaded from here.
+weights/
