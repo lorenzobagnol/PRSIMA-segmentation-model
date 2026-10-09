@@ -185,7 +185,7 @@
 
     <div id="gallery">
       <div class="galleryHead">
-        <select id="filter"></select>
+        <select id="filter"><option value="all">Tutte</option><option value="todo">Da rivedere</option></select>
         <div class="galleryCount" id="galleryCount"></div>
       </div>
       <div id="galleryGrid"></div>
@@ -294,7 +294,6 @@ function visibleImages() {
 }
 
 function refreshGallery() {
-  $("filter").innerHTML = `<option value="all">Tutte</option><option value="todo">Da rivedere</option>`;
   const list = imagesInCategory(), visible = visibleImages();
   $("galleryCount").textContent = `${list.length} immagini · salvate ${list.filter(i => i.reviewed).length} · test ${list.filter(i => i.test).length}`;
   $("galleryGrid").innerHTML = visible.map(i => `
