@@ -65,10 +65,11 @@ giro di lavoro. Non toccarli senza che sia chiesto esplicitamente.
 
 ## Architettura (dettagli completi in docs/runbook.md)
 
-- **Strumento di annotazione** (multi-degrado dal 2026-10-09, deploy `v9`): ogni immagine appartiene
-  a UN solo degrado; ogni categoria ha fino a 3 prompt SAM 3 fissati alla creazione e un modello
+- **Strumento di annotazione** (multi-degrado dal 2026-10-09, deploy `v9`): la stessa foto può stare in più categorie (una voce per
+  categoria, originale condiviso); ogni categoria ha fino a 3 prompt SAM 3 fissati alla creazione e un modello
   U-Net opzionale (`models/<Categoria>.pth`, dichiarato in `categories.json`; si aggiorna solo da
-  noi, non dall'utente). Categorie attuali: Distacco (con U-Net), AttiVandalici (solo SAM 3).
+  noi, non dall'utente). Categorie attuali: Distacco (con U-Net), Atti Vandalici e Colonizzazione biologica (solo SAM 3). Gli
+  utenti non possono cambiare i prompt; l'amministratore sì con `annotation/admin.py set-prompts` (vedi runbook).
   `annotation/server.py` (FastAPI) + `annotation/static/index.html`
   (pagina singola, canvas). Motori: `annotation/sam3_engine.py` (SAM 3) e
   `annotation/unet_engine.py` (U-Net allenata). Deployato su Cloud Run, URL

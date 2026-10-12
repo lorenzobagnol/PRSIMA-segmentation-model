@@ -507,6 +507,10 @@ def compute(req: ComputeRequest):
 		require_sam()
 		if not cat["prompts"]:
 			raise HTTPException(400, f"La categoria «{cat['name']}» non ha prompt SAM 3 impostati.")
+		# Start from a clean slate: after the category's prompts were changed (admin.py set-prompts), the maps
+		# of the old prompts must not linger as options for this image.
+		meta["prompts"] = {}
+		shutil.rmtree(os.path.join(cdir, "prompts"), ignore_errors=True)
 		query_total = np.zeros((pil.height, pil.width), np.float32)
 		semantic_total, detected_total = np.zeros_like(query_total), np.zeros(query_total.shape, bool)
 		for text in cat["prompts"]:

@@ -163,3 +163,18 @@ file in `--backup`). Nota: il classificatore dei permessi di Claude Code blocca 
 sul bucket di produzione, quindi gli script di migrazione vanno lanciati dall'utente o autorizzati
 esplicitamente. Le copie vecchie in `cache/<id>/Distacco/` e `models/distacco.pth` sono ancora lì
 (si possono cancellare quando si è sicuri).
+
+## Cambiare i prompt SAM 3 di una categoria (solo amministratore)
+
+Gli utenti NON possono modificare i prompt dopo la creazione della categoria (scelta di progetto: nessun
+pulsante nell'interfaccia, nessun endpoint). Per cambiarli senza creare una categoria nuova:
+
+```bash
+.venv/Scripts/python annotation/admin.py set-prompts "<Categoria>" "prompt 1" "prompt 2" "prompt 3" --recompute
+```
+
+Salva il vecchio `categories.json` in `bucket_backup/`, scrive i nuovi prompt e, con `--recompute`, ricalcola
+SAM 3 solo sulle immagini **non ancora salvate** (reviewed=false) che avevano già una previsione; le maschere
+salvate non si toccano. Il ricalcolo scarta le mappe dei vecchi prompt (serve la versione `v17` o successiva
+del server). Dopo una pausa lunga il servizio ha un cold start: lo script ritenta da solo. Nota: il
+classificatore dei permessi di Claude Code può bloccare la scrittura sul bucket di produzione.
